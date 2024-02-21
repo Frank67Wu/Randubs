@@ -11,11 +11,11 @@ export default function Home() {
   const blue = "#5464FF"
   const purple = 	"#FFD6D7"
 
-  const [playerOne, setPlayerOne] = useState(window?.localStorage?.getItem("p1") || "Player One")
-  const [playerTwo, setPlayerTwo] = useState(window?.localStorage?.getItem("p2") || "Player Two")
-  const [playerThree, setPlayerThree] = useState(window?.localStorage?.getItem("p3") || "Player Three")
-  const [playerFour, setPlayerFour] = useState(window?.localStorage?.getItem("p4") || "Player Four")
-  const [matchAmount, setMatchAmount] = useState(window?.localStorage?.getItem("matchAmount") || 1)
+  const [playerOne, setPlayerOne] = useState("Player One")
+  const [playerTwo, setPlayerTwo] = useState("Player Two")
+  const [playerThree, setPlayerThree] = useState("Player Three")
+  const [playerFour, setPlayerFour] = useState("Player Four")
+  const [matchAmount, setMatchAmount] = useState(1)
   const [playerColors, setPlayerColors] = useState([red, red, blue, blue])
   const [total, setTotal] = useState(["0", "0", "0", "0"])
   const [loading, setLoading] = useState(false)
@@ -27,6 +27,13 @@ export default function Home() {
     if (previousTotal[0] !== 'null') {
       setTotal(previousTotal)
     }
+
+    setPlayerOne(localStorage.getItem("p1") || "Player One")
+    setPlayerOne(localStorage.getItem("p2") || "Player Two")
+    setPlayerOne(localStorage.getItem("p3") || "Player Three")
+    setPlayerOne(localStorage.getItem("p4") || "Player Four")
+
+    setMatchAmount(localStorage.getItem("matchAmount") || 1) 
 
     setCachingFinished(true)
   }, [])
