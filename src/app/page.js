@@ -29,9 +29,9 @@ export default function Home() {
     }
 
     setPlayerOne(localStorage.getItem("p1") || "Player One")
-    setPlayerOne(localStorage.getItem("p2") || "Player Two")
-    setPlayerOne(localStorage.getItem("p3") || "Player Three")
-    setPlayerOne(localStorage.getItem("p4") || "Player Four")
+    setPlayerTwo(localStorage.getItem("p2") || "Player Two")
+    setPlayerThree(localStorage.getItem("p3") || "Player Three")
+    setPlayerFour(localStorage.getItem("p4") || "Player Four")
 
     setMatchAmount(localStorage.getItem("matchAmount") || 1) 
 
