@@ -29,10 +29,13 @@ export const MatchHistory = ({history, open, handleClose}) => {
             <ListItemButton onClick={() => console.log(1)}>
               <Box sx={{display: "flex", justifyContent : "space-evenly", width : "100%"}}>
                 <ListItemText primary={`${match[0]} / ${match[1]}`} />
-                <ListItemText primary={`${match[4] ? "-" : "+"} ${match[5]}`} sx= {{position : "fixed", mr : "75px"}}/>
-                {match[4] ? <ArrowRightIcon fontSize='large' sx={{position : 'fixed', mt : "-2px"}}/> : 
-                            <ArrowLeftIcon fontSize='large' sx={{position : 'fixed', mt : "-2px"}}/>}  
-                <ListItemText primary={`${match[4] ? "+" : "-"} ${match[5]}`} sx= {{position : "fixed", ml : "75px"}}/>
+                <Box sx={{display: "flex", justifyContent : "center"}}>
+                    <ListItemText primary={`${match[4] ? "-" : "+"} ${match[5]}`}/>
+                    {match[4] ? <ArrowRightIcon fontSize='large' sx={{mt : "-2px"}}/> : 
+                                <ArrowLeftIcon fontSize='large' sx={{mt : "-2px"}}/>}  
+                    <ListItemText primary={`${match[4] ? "+" : "-"} ${match[5]}`}/>
+                </Box>
+                
                 <ListItemText sx={{textAlign : "right"}} primary={`${match[2]} / ${match[3]}`} />
               
               </Box>
