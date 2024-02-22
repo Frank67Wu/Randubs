@@ -3,6 +3,7 @@
 import { Box, TextField, Typography, Button } from "@mui/material";
 import { useState, useEffect } from "react";
 import QuestionMarkIcon from '@mui/icons-material/QuestionMark';
+import { MatchHistory } from "./components/MatchHistory";
 
 
 export default function Home() {
@@ -20,13 +21,24 @@ export default function Home() {
   const [total, setTotal] = useState(["0", "0", "0", "0"])
   const [loading, setLoading] = useState(false)
   const [cachingFinished, setCachingFinished] = useState(false)
+  const [history, setHistory] = useState([])
+  const [histAlt, setHistAlt] = useState([])
+
+  const [matchHistoryOpen, setMatchHistoryOpen] = useState(false)
+
+  const handleMatchHistoryClose = () => {
+    setMatchHistoryOpen(false)
+  }
 
   useEffect(() => {
-    const previousTotal = [localStorage.getItem("p1total"), localStorage.getItem("p2total"), localStorage.getItem("p3total"), localStorage.getItem("p4total")]
+    if (!cachingFinished) {
+    const prev1 = localStorage.getItem("p1total") || "0"
+    const prev2 = localStorage.getItem("p2total") || "0"
+    const prev3 = localStorage.getItem("p3total") || "0"
+    const prev4 = localStorage.getItem("p4total") || "0"
 
-    if (previousTotal[0] !== 'null') {
-      setTotal(previousTotal)
-    }
+    
+    setTotal([prev1, prev2, prev3, prev4])
 
     setPlayerOne(localStorage.getItem("p1") || "Player One")
     setPlayerTwo(localStorage.getItem("p2") || "Player Two")
@@ -36,6 +48,7 @@ export default function Home() {
     setMatchAmount(localStorage.getItem("matchAmount") || 1) 
 
     setCachingFinished(true)
+    }
   }, [])
 
   useEffect(() => {
@@ -48,10 +61,12 @@ export default function Home() {
   }, [playerOne, playerTwo, playerThree, playerFour])
 
   useEffect(() => {
+    if (cachingFinished) {
     localStorage.setItem("p1total", total[0])
     localStorage.setItem("p2total", total[1])
     localStorage.setItem("p3total", total[2])
     localStorage.setItem("p4total", total[3])
+    }
   }, [total])
 
   useEffect(() => {
@@ -77,7 +92,7 @@ export default function Home() {
 
     setTimeout(() => {
       setLoading(false)
-    }, 1300)
+    }, 900)
 
     return
   }
@@ -88,22 +103,76 @@ export default function Home() {
   }
 
   const updateTotal = (winner) => {
-    console.log("ASDFASDF")
+    const players = [playerOne, playerTwo, playerThree, playerFour]
+    let hist = []
+    let alt = []
     let newTotal = []
     for (let i = 0; i < 4; i++) {
-      console.log(playerColors[i] == winner)
       if (playerColors[i] == winner) {
         newTotal.push(parseInt(total[i]) + matchAmount)
-        console.log(parseInt(total[i]), matchAmount)
+        alt[i] = 1
       }
       else {
         newTotal.push(parseInt(total[i]) - matchAmount)
+        alt[i] = 0
+      }
+
+      if (playerColors[i] == red) {
+        hist.unshift(players[i])
+      }
+      else {
+        hist.push(players[i])
       }
     }
 
-    console.log(newTotal)
-    setTotal(newTotal)
+    if (winner == red) {
+      hist.push(0)
+    } 
+    else {
+      hist.push(1)
+    }
 
+    hist.push(matchAmount)
+    alt.push(matchAmount)
+    console.log(matchAmount)
+
+    setHistory((oldhist) => [...oldhist, hist])
+    setTotal(newTotal)
+    setHistAlt((oldAlt) => [...oldAlt, alt])
+
+  }
+
+  const changeOneTotal = (player, newValue) => {
+    const newTotal = []
+    for (let i = 0; i < 4 ; i++) {
+      if (i === player) {
+        newTotal.push(newValue)
+      }
+      else {
+        newTotal.push(total[i])
+      }
+    }
+    setTotal(newTotal)
+  }
+
+  const undo = () => {
+    console.log(histAlt)
+    if (histAlt.length > 0) {
+    const lastMatch = histAlt[histAlt.length - 1]
+    const tempTotal = []
+
+    for (let i = 0; i < 4; i++) {
+      if (lastMatch[i] == 1) {
+        tempTotal[i] = parseInt(total[i]) - lastMatch[4]
+      }
+      else {
+        tempTotal[i]  = parseInt(total[i]) + lastMatch[4]
+      }
+    }
+    console.log(tempTotal)
+    setTotal(tempTotal)
+    setHistAlt((prev) => (prev.slice(0, -1)))
+  }
   }
 
   return (
@@ -149,7 +218,15 @@ export default function Home() {
             WebkitTransition: "all 1s ease",
             MozTransition: "all 1s ease"
           }}>
-            <Typography variant="h2">{total[0]}</Typography>
+          <TextField size="small" sx={{  "& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button": {
+            display: "none",
+          },
+          "& input[type=number]": {
+            MozAppearance: "textfield",
+          }, width : "200px", height : "100px", zIndex : 100,
+           }} variant="standard"
+           inputProps={{style: { textAlign: 'center' }}}
+           InputProps={{disableUnderline: true, style: {fontSize: 80 }}} type="number" value={total[0]} onChange={(e) => changeOneTotal(0, e.target.value)}>{total[0]}</TextField>
           </Box>
         </Box>
 
@@ -174,7 +251,15 @@ export default function Home() {
             WebkitTransition: "all 1s ease",
             MozTransition: "all 1s ease"
           }}>
-            <Typography variant="h2">{total[1]}</Typography>
+          <TextField size="small" sx={{  "& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button": {
+            display: "none",
+          },
+          "& input[type=number]": {
+            MozAppearance: "textfield",
+          }, width : "200px", height : "100px", zIndex : 100,
+           }} variant="standard"
+           inputProps={{style: { textAlign: 'center' }}}
+           InputProps={{disableUnderline: true, style: {fontSize: 80 }}} type="number" value={total[1]} onChange={(e) => changeOneTotal(1, e.target.value)}>{total[1]}</TextField>
           </Box>
         </Box>
 
@@ -199,7 +284,15 @@ export default function Home() {
             WebkitTransition: "all 1s ease",
             MozTransition: "all 1s ease"
           }}>
-            <Typography variant="h2">{total[2]}</Typography>
+          <TextField size="small" sx={{  "& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button": {
+            display: "none",
+          },
+          "& input[type=number]": {
+            MozAppearance: "textfield",
+          }, width : "200px", height : "100px", zIndex : 100,
+           }} variant="standard"
+           inputProps={{style: { textAlign: 'center' }}}
+           InputProps={{disableUnderline: true, style: {fontSize: 80 }}} type="number" value={total[2]} onChange={(e) => changeOneTotal(2, e.target.value)}>{total[2]}</TextField>
           </Box>
         </Box>
 
@@ -224,7 +317,15 @@ export default function Home() {
             WebkitTransition: "all 1s ease",
             MozTransition: "all 1s ease"
           }}>
-            <Typography variant="h2">{total[3]}</Typography>
+          <TextField size="small" sx={{  "& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button": {
+            display: "none",
+          },
+          "& input[type=number]": {
+            MozAppearance: "textfield",
+          }, width : "200px", height : "100px", zIndex : 100,
+           }} variant="standard"
+           inputProps={{style: { textAlign: 'center' }}}
+           InputProps={{disableUnderline: true, style: {fontSize: 80 }}} type="number" value={total[3]} onChange={(e) => changeOneTotal(3, e.target.value)}>{total[3]}</TextField>
           </Box>
         </Box>
 
@@ -252,6 +353,14 @@ export default function Home() {
       <Box> 
         <Button onClick={() => (resetAll())} sx={{color : "black", border: "solid", bottom : 10, position : "fixed", width : "200px", paddingBottom : "20px", paddingTop : "20px"}}>Reset All</Button>
       </Box>
+
+
+      <Box sx={{display : "flex", justifyContent : "center"}}>
+        <Button onClick={() => (undo())} sx={{color : "black", border: "solid", minWidth : "200px", paddingBottom : "20px", paddingTop : "20px", mt : "64px", mr : "16px"}}>Undo</Button>
+        <Button onClick={() => (setMatchHistoryOpen(true))} sx={{color : "black", border: "solid", minWidth : "200px", paddingBottom : "20px", paddingTop : "20px", mt : "64px" , ml: "16px"}}>Match History</Button>
+      </Box>      
+
+      <MatchHistory history={history} open={matchHistoryOpen} handleClose={handleMatchHistoryClose}/>
 
     </Box>
   );
