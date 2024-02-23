@@ -28,7 +28,7 @@ export const MatchHistory = ({history, open, handleClose}) => {
           <ListItem disableGutters key={match}>
             <ListItemButton onClick={() => console.log(1)}>
               <Box sx={{display: "flex", justifyContent : "space-evenly", width : "100%"}}>
-                <ListItemText primary={`${match[0]} / ${match[1]}`} />
+                <ListItemText sx={{maxWidth : "200px"}} primary={`${match[0]} / ${match[1]}`} />
                 <Box sx={{display: "flex", justifyContent : "center"}}>
                     <ListItemText primary={`${match[4] ? "-" : "+"} ${match[5]}`}/>
                     {match[4] ? <ArrowRightIcon fontSize='large' sx={{mt : "-2px"}}/> : 
@@ -36,7 +36,7 @@ export const MatchHistory = ({history, open, handleClose}) => {
                     <ListItemText primary={`${match[4] ? "+" : "-"} ${match[5]}`}/>
                 </Box>
                 
-                <ListItemText sx={{textAlign : "right"}} primary={`${match[2]} / ${match[3]}`} />
+                <ListItemText sx={{maxWidth : "200px"}} primary={`${match[2]} / ${match[3]}`} />
               
               </Box>
               

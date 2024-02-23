@@ -1,28 +1,47 @@
 'use client'
 
-import { Box, TextField, Typography, Button } from "@mui/material";
+import { Box, TextField, Typography, Button, Container } from "@mui/material";
 import { useState, useEffect } from "react";
 import QuestionMarkIcon from '@mui/icons-material/QuestionMark';
 import { MatchHistory } from "./components/MatchHistory";
+import { PlayerDisplay } from "./components/PlayerDisplay";
+
 
 
 export default function Home() {
 
-  const red = "#F52E2E"
-  const blue = "#5464FF"
+  const IN_PROGRESS = "IN PROGRESS"
+  const BLUE_WIN  = "BLUE_WIN"
+  const RED_WIN = "RED_WIN"
+
+  const red = "#b20100"
+  const blue = "#0040ca"
   const purple = 	"#FFD6D7"
 
-  const [playerOne, setPlayerOne] = useState("Player One")
-  const [playerTwo, setPlayerTwo] = useState("Player Two")
-  const [playerThree, setPlayerThree] = useState("Player Three")
-  const [playerFour, setPlayerFour] = useState("Player Four")
+  const redOne = "#EE2C2B"
+  const redTwo = "#F3625A"
+  const redThree = "#f19d8c"
+
+  const blueOne = "#2980F4"
+  const blueTwo = "#39A2F6"
+  const blueThree = "#4AB2E3"
+
+  const [playerOne, setPlayerOne] = useState("")
+  const [playerTwo, setPlayerTwo] = useState("")
+  const [playerThree, setPlayerThree] = useState("")
+  const [playerFour, setPlayerFour] = useState("")
   const [matchAmount, setMatchAmount] = useState(1)
   const [playerColors, setPlayerColors] = useState([red, red, blue, blue])
-  const [total, setTotal] = useState(["0", "0", "0", "0"])
+  const [total, setTotal] = useState([null, null, null, null])
   const [loading, setLoading] = useState(false)
   const [cachingFinished, setCachingFinished] = useState(false)
   const [history, setHistory] = useState([])
   const [histAlt, setHistAlt] = useState([])
+  const [matchStatus, setMatchStatus] = useState(IN_PROGRESS)
+  const [histColors, setHistColors] = useState([])
+
+  const [themeColor, setThemeColor] = useState("black")
+  const [altThemeColor, setAltThemeColor] = useState("white")
 
   const [matchHistoryOpen, setMatchHistoryOpen] = useState(false)
 
@@ -45,8 +64,12 @@ export default function Home() {
     setPlayerThree(localStorage.getItem("p3") || "Player Three")
     setPlayerFour(localStorage.getItem("p4") || "Player Four")
 
-    setMatchAmount(localStorage.getItem("matchAmount") || 1) 
-
+    if (!isNaN(localStorage.getItem("matchAmount"))) {
+      setMatchAmount(1)
+    }
+    else {
+      setMatchAmount(localStorage.getItem("matchAmount"))
+    } 
     setCachingFinished(true)
     }
   }, [])
@@ -78,7 +101,7 @@ export default function Home() {
 
 
   const randomizeTeams = () => {
-    setLoading(true)
+
     let colors = [red, red, red, red]
 
     let indexOne = Math.floor(Math.random() * (4))
@@ -89,10 +112,8 @@ export default function Home() {
 
     setPlayerColors(colors)
 
+    setMatchStatus(IN_PROGRESS)
 
-    setTimeout(() => {
-      setLoading(false)
-    }, 900)
 
     return
   }
@@ -103,18 +124,27 @@ export default function Home() {
   }
 
   const updateTotal = (winner) => {
+    if (winner == red) {
+      setMatchStatus(RED_WIN)
+    }
+    else {
+      setMatchStatus(BLUE_WIN)
+    }
     const players = [playerOne, playerTwo, playerThree, playerFour]
     let hist = []
     let alt = []
     let newTotal = []
+    let histCol = []
     for (let i = 0; i < 4; i++) {
       if (playerColors[i] == winner) {
-        newTotal.push(parseInt(total[i]) + matchAmount)
+        newTotal.push(parseInt(total[i]) + parseInt(matchAmount))
         alt[i] = 1
+        console.log(1)
       }
       else {
-        newTotal.push(parseInt(total[i]) - matchAmount)
+        newTotal.push(parseInt(total[i]) - parseInt(matchAmount))
         alt[i] = 0
+        console.log(2)
       }
 
       if (playerColors[i] == red) {
@@ -134,11 +164,15 @@ export default function Home() {
 
     hist.push(matchAmount)
     alt.push(matchAmount)
-    console.log(matchAmount)
+
+    for (let col of playerColors) {
+      histCol.push(col)
+    }
 
     setHistory((oldhist) => [...oldhist, hist])
     setTotal(newTotal)
     setHistAlt((oldAlt) => [...oldAlt, alt])
+    setHistColors((oldColors) => [...oldColors, histCol])
 
   }
 
@@ -164,203 +198,107 @@ export default function Home() {
     for (let i = 0; i < 4; i++) {
       if (lastMatch[i] == 1) {
         tempTotal[i] = parseInt(total[i]) - lastMatch[4]
+        console.log(parseInt(total[i]), lastMatch[4])
       }
       else {
         tempTotal[i]  = parseInt(total[i]) + lastMatch[4]
       }
+
+      
     }
-    console.log(tempTotal)
+
+    if (histColors.length > 1) {
+  
+    setPlayerColors(histColors[histColors.length - 1])
+    setHistColors((prev) => (prev.slice(0, -1)))
+
+    }
+
     setTotal(tempTotal)
     setHistAlt((prev) => (prev.slice(0, -1)))
   }
   }
 
   return (
-    <Box sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
+    <Box sx={{ height: "100vh", minHeight : "100vh", display: "flex", flexDirection: "column" }}>
       <Box sx={{ display: "flex", mt : "16px"}}>
-        <Typography variant="h6">Set Money Per Game : </Typography>
+        <Typography fontSize={30} sx={{color : altThemeColor, WebkitTextStrokeWidth : "1px", WebkitTextStrokeColor : altThemeColor, fontWeight : "bold"}} variant="h6" >Set Money Per Game : </Typography>
         <TextField size="small" sx={{
           "& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button": {
             display: "none",
           },
           "& input[type=number]": {
             MozAppearance: "textfield",
-          }, width : "40px", mt : "-4px", ml : "8px"
-        }} type="number" value={matchAmount} onChange={(e) => setMatchAmount(parseInt(e.target.value))}>{matchAmount}</TextField>
+          }, width : "60px", mt : "-4px", ml : "8px",
+        }}inputProps={{style: {fontSize: 30, paddingLeft : "20px", color : altThemeColor, fontWeight: "bold"}}}  type="number" value={matchAmount} onChange={(e) => setMatchAmount(parseInt(e.target.value))}>{matchAmount}</TextField>
       </Box>
 
 
-      <Button onClick={() => randomizeTeams()} sx={{ border: "solid", width: "8%", margin: "auto", height: "70px", mb : "64px"}}>
+      <Button onClick={() => randomizeTeams()} sx={{borderColor : altThemeColor,  width: "200px", margin: "auto", height: "120px", marginTop : "20px", marginBottom : "40px", background: "hsla(0, 85%, 55%, 1)",
+
+      background: "linear-gradient(135deg, hsla(0, 85%, 55%, 1) 0%, hsla(214, 90%, 56%, 1) 100%)",
+      
+      background: "-moz-linear-gradient(135deg, hsla(0, 85%, 55%, 1) 0%, hsla(214, 90%, 56%, 1) 100%)",
+      
+      background: "-webkit-linear-gradient(135deg, hsla(0, 85%, 55%, 1) 0%, hsla(214, 90%, 56%, 1) 100%)",
+      
+      color : themeColor}}>
         <QuestionMarkIcon></QuestionMarkIcon>
       </Button>
 
 
       <Box sx={{ display: "flex", justifyContent: "center" }}>
-        <Box sx={{ display: "flex", flexDirection: "column", ml: "8px", mr: "8px" }}>
-          <TextField
-            sx={{
-              backgroundColor: playerColors[0] == blue ? loading ? purple : blue : loading ? purple : red,
-              transition: "all 1s ease",
-              WebkitTransition: "all 1s ease",
-              MozTransition: "all 1s ease"
-            }}
-            value={playerOne}
-            onChange={(e) => (setPlayerOne(e.target.value))}
-            InputProps={{
-              inputProps: {
-                style: { textAlign: "center" },
-              }
-            }} />
-          <Box sx={{
-            height: "170px", marginTop: "16px", borderRadius: "5px", background: playerColors[0], display: "flex", justifyContent: "center", alignItems: "center",
-            backgroundColor: playerColors[0] == blue ? loading ? purple : blue : loading ? purple : red,
-            transition: "all 1s ease",
-            WebkitTransition: "all 1s ease",
-            MozTransition: "all 1s ease"
-          }}>
-          <TextField size="small" sx={{  "& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button": {
-            display: "none",
-          },
-          "& input[type=number]": {
-            MozAppearance: "textfield",
-          }, width : "200px", height : "100px", zIndex : 100,
-           }} variant="standard"
-           inputProps={{style: { textAlign: 'center' }}}
-           InputProps={{disableUnderline: true, style: {fontSize: 80 }}} type="number" value={total[0]} onChange={(e) => changeOneTotal(0, e.target.value)}>{total[0]}</TextField>
-          </Box>
-        </Box>
+        <PlayerDisplay playerName={playerOne} playerColor={playerColors[0]} 
+                       setPlayerName={setPlayerOne} playerTotal={total[0]}
+                       changeOneTotal={changeOneTotal} loading={loading} playerId={0} />
 
-        <Box sx={{ display: "flex", flexDirection: "column", ml: "8px", mr: "8px" }}>
-          <TextField
-            sx={{
-              backgroundColor: playerColors[1] == blue ? loading ? purple : blue : loading ? purple : red,
-              transition: "all 1s ease",
-              WebkitTransition: "all 1s ease",
-              MozTransition: "all 1s ease"
-            }}
-            value={playerTwo}
-            onChange={(e) => (setPlayerTwo(e.target.value))}
-            InputProps={{
-              inputProps: {
-                style: { textAlign: "center" },
-              }
-            }} />
-          <Box sx={{
-            height: "170px", marginTop: "16px", borderRadius: "5px", background: playerColors[1], display: "flex", justifyContent: "center", alignItems: "center", backgroundColor: playerColors[1] == blue ? loading ? purple : blue : loading ? purple : red,
-            transition: "all 1s ease",
-            WebkitTransition: "all 1s ease",
-            MozTransition: "all 1s ease"
-          }}>
-          <TextField size="small" sx={{  "& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button": {
-            display: "none",
-          },
-          "& input[type=number]": {
-            MozAppearance: "textfield",
-          }, width : "200px", height : "100px", zIndex : 100,
-           }} variant="standard"
-           inputProps={{style: { textAlign: 'center' }}}
-           InputProps={{disableUnderline: true, style: {fontSize: 80 }}} type="number" value={total[1]} onChange={(e) => changeOneTotal(1, e.target.value)}>{total[1]}</TextField>
-          </Box>
-        </Box>
+        <PlayerDisplay playerName={playerTwo} playerColor={playerColors[1]} 
+                       setPlayerName={setPlayerTwo} playerTotal={total[1]}
+                       changeOneTotal={changeOneTotal} loading={loading} playerId={1} />
 
-        <Box sx={{ display: "flex", flexDirection: "column", ml: "8px", mr: "8px" }}>
-          <TextField
-            sx={{
-              backgroundColor: playerColors[2] == blue ? loading ? purple : blue : loading ? purple : red,
-              transition: "all 1s ease",
-              WebkitTransition: "all 1s ease",
-              MozTransition: "all 1s ease"
-            }}
-            value={playerThree}
-            onChange={(e) => (setPlayerThree(e.target.value))}
-            InputProps={{
-              inputProps: {
-                style: { textAlign: "center" },
-              }
-            }} />
-          <Box sx={{
-            height: "170px", marginTop: "16px", borderRadius: "5px", background: playerColors[2], display: "flex", justifyContent: "center", alignItems: "center", backgroundColor: playerColors[2] == blue ? loading ? purple : blue : loading ? purple : red,
-            transition: "all 1s ease",
-            WebkitTransition: "all 1s ease",
-            MozTransition: "all 1s ease"
-          }}>
-          <TextField size="small" sx={{  "& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button": {
-            display: "none",
-          },
-          "& input[type=number]": {
-            MozAppearance: "textfield",
-          }, width : "200px", height : "100px", zIndex : 100,
-           }} variant="standard"
-           inputProps={{style: { textAlign: 'center' }}}
-           InputProps={{disableUnderline: true, style: {fontSize: 80 }}} type="number" value={total[2]} onChange={(e) => changeOneTotal(2, e.target.value)}>{total[2]}</TextField>
-          </Box>
-        </Box>
+        <PlayerDisplay playerName={playerThree} playerColor={playerColors[2]} 
+                       setPlayerName={setPlayerThree} playerTotal={total[2]}
+                       changeOneTotal={changeOneTotal} loading={loading} playerId={2} />
 
-        <Box sx={{ display: "flex", flexDirection: "column", ml: "8px", mr: "8px" }}>
-          <TextField
-            sx={{
-              backgroundColor: playerColors[3] == blue ? loading ? purple : blue : loading ? purple : red,
-              transition: "all 1s ease",
-              WebkitTransition: "all 1s ease",
-              MozTransition: "all 1s ease"
-            }}
-            value={playerFour}
-            onChange={(e) => (setPlayerFour(e.target.value))}
-            InputProps={{
-              inputProps: {
-                style: { textAlign: "center" },
-              }
-            }} />
-          <Box sx={{
-            height: "170px", marginTop: "16px", borderRadius: "5px", background: playerColors[3], display: "flex", justifyContent: "center", alignItems: "center", backgroundColor: playerColors[3] == blue ? loading ? purple : blue : loading ? purple : red,
-            transition: "all 1s ease",
-            WebkitTransition: "all 1s ease",
-            MozTransition: "all 1s ease"
-          }}>
-          <TextField size="small" sx={{  "& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button": {
-            display: "none",
-          },
-          "& input[type=number]": {
-            MozAppearance: "textfield",
-          }, width : "200px", height : "100px", zIndex : 100,
-           }} variant="standard"
-           inputProps={{style: { textAlign: 'center' }}}
-           InputProps={{disableUnderline: true, style: {fontSize: 80 }}} type="number" value={total[3]} onChange={(e) => changeOneTotal(3, e.target.value)}>{total[3]}</TextField>
-          </Box>
-        </Box>
+        <PlayerDisplay playerName={playerFour} playerColor={playerColors[3]} 
+                       setPlayerName={setPlayerFour} playerTotal={total[3]}
+                       changeOneTotal={changeOneTotal} loading={loading} playerId={3} />
+
+        
 
 
 
       </Box>
 
-
-      <Box sx={{ display: "flex", justifyContent: "center" }}>
+      <Box sx={{ display: "flex", justifyContent: "center", mt : "32px"}}>
 
         <Button onClick={() => (updateTotal(red))} sx={{
           "&:hover": {
             backgroundColor: red,
-          }, background: red, color: "black", width: "150px", height: "120px", mr: "8px", mt: "16px"
+          }, background: redOne, color: "black", width: "150px", height: "120px", mr: "280px", mt: "16px", color : "white", WebkitTextStrokeWidth : "1px", WebkitTextStrokeColor : "black", fontWeight : "bold", fontSize : 24, boxShadow : `${matchStatus === BLUE_WIN ? "0 0 100px ${red}" : " "}`
         }}>Red Win</Button>
         <Button onClick={() => (updateTotal(blue))} sx={{
           "&:hover": {
             backgroundColor: blue,
-          }, background: blue, color: "black", width: "150px", height: "120px", ml: "8px", mt: "16px"
+          }, background: blueOne, color: "black", width: "150px", height: "120px", ml: "8px", mt: "16px",  color : "white", WebkitTextStrokeWidth : "1px", WebkitTextStrokeColor : "black", fontWeight : "bold", fontSize : 24 , boxShadow : `${matchStatus === BLUE_WIN ? "0 0 100px ${blue}" : " "}`
         }}>Blue Win</Button>
 
       </Box>
 
 
       <Box> 
-        <Button onClick={() => (resetAll())} sx={{color : "black", border: "solid", bottom : 10, position : "fixed", width : "200px", paddingBottom : "20px", paddingTop : "20px"}}>Reset All</Button>
+        <Button onClick={() => (resetAll())} sx={{position : "absolute", color : altThemeColor, border: "solid", width : "200px", paddingBottom : "20px", paddingTop : "20px", bottom : 0, fontSize : 24, WebkitTextStrokeWidth : "1px", WebkitTextStrokeColor : altThemeColor, fontWeight : "bold"}}>Reset All</Button>
       </Box>
 
 
       <Box sx={{display : "flex", justifyContent : "center"}}>
-        <Button onClick={() => (undo())} sx={{color : "black", border: "solid", minWidth : "200px", paddingBottom : "20px", paddingTop : "20px", mt : "64px", mr : "16px"}}>Undo</Button>
-        <Button onClick={() => (setMatchHistoryOpen(true))} sx={{color : "black", border: "solid", minWidth : "200px", paddingBottom : "20px", paddingTop : "20px", mt : "64px" , ml: "16px"}}>Match History</Button>
+        <Button onClick={() => (undo())} sx={{position : "absolute", color : altThemeColor, border: "solid", minWidth : "200px", paddingBottom : "20px", paddingTop : "20px", bottom : 0, ml: "250px", fontSize : 24, WebkitTextStrokeWidth : "1px", WebkitTextStrokeColor : altThemeColor, fontWeight : "bold"}}>Undo</Button>
+        <Button onClick={() => (setMatchHistoryOpen(true))} sx={{position : "absolute", color : altThemeColor, border: "solid", minWidth : "200px", paddingBottom : "20px", paddingTop : "20px", bottom : 0, mr: "250px", fontSize : 24, WebkitTextStrokeWidth : "1px", WebkitTextStrokeColor : altThemeColor, fontWeight : "bold"}}>Match History</Button>
       </Box>      
 
       <MatchHistory history={history} open={matchHistoryOpen} handleClose={handleMatchHistoryClose}/>
+
+      <Button onClick={() => ("SECRET BUTTON")} sx={{position : "absolute", color : altThemeColor, border: "solid", minWidth : "200px", paddingBottom : "20px", paddingTop : "20px", bottom : 0, right : 0, fontSize : 24, WebkitTextStrokeWidth : "1px", WebkitTextStrokeColor : altThemeColor, fontWeight : "bold", opacity : 0}}>TEST</Button>
 
     </Box>
   );
