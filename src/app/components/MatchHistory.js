@@ -26,7 +26,7 @@ export const MatchHistory = ({history, open, handleClose}) => {
       <List sx={{ pt: 0}}>
         {history.map((match) => (
           <ListItem disableGutters key={match}>
-            <ListItemButton onClick={() => console.log(1)}>
+            <ListItemButton >
               <Box sx={{display: "flex", justifyContent : "space-evenly", width : "100%"}}>
                 <ListItemText sx={{maxWidth : "200px"}} primary={`${match[0]} / ${match[1]}`} />
                 <Box sx={{display: "flex", justifyContent : "center"}}>

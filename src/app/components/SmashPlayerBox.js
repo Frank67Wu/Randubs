@@ -2,7 +2,9 @@ import React from 'react'
 import { Container, Box } from '@mui/material'
 
 
-export const SmashPlayerBox = ({colors}) => {
+export const SmashPlayerBox = ({colors, loading}) => {
+
+  const transitionColors = ["#8c5690", "#9682a8", "#9ea8b8"]
 
 
   return (
@@ -13,17 +15,26 @@ export const SmashPlayerBox = ({colors}) => {
       </Box>
 
       <Box sx={{
-        position: "absolute" , height: 0, width : 0, borderLeft: "300px solid transparent", borderTop: `190px solid ${colors[0]}`, zIndex: 3, marginLeft : "-125px",
+        position: "absolute" , height: 0, width : 0, borderLeft: "300px solid transparent", borderTop: `190px solid ${loading ? transitionColors[0] : colors[0]}`, zIndex: 3, marginLeft : "-125px",            
+        transition: "all 1s ease",
+        WebkitTransition: "all 1s ease",
+        MozTransition: "all 1s ease",
         }}>
       </Box>
 
       <Box sx={{
-        position: "absolute" , height: 0, width : 0, borderRight: "220px solid transparent", borderBottom: `128px solid ${colors[1]}`, zIndex: 5, 
+        position: "absolute" , height: 0, width : 0, borderRight: "220px solid transparent", borderBottom: `128px solid ${loading ? transitionColors[1] : colors[1]}`, zIndex: 5,
+        transition: "all 1s ease",
+        WebkitTransition: "all 1s ease",
+        MozTransition: "all 1s ease", 
         marginLeft : "-50px", marginTop : "30px",}}>
       </Box>
 
       <Box sx={{
-        position: "absolute" , height: 0, width : 0, borderRight: "160px solid transparent", borderBottom: `80px solid ${colors[2]}`, zIndex: 6, 
+        position: "absolute" , height: 0, width : 0, borderRight: "160px solid transparent", borderBottom: `80px solid ${loading ? transitionColors[2] : colors[2]}`, zIndex: 6, 
+        transition: "all 1s ease",
+        WebkitTransition: "all 1s ease",
+        MozTransition: "all 1s ease",
         marginLeft : "-50px", marginTop : "70px"}}>
       </Box>
 

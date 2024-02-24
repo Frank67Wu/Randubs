@@ -5,6 +5,11 @@ import { useState, useEffect } from "react";
 import QuestionMarkIcon from '@mui/icons-material/QuestionMark';
 import { MatchHistory } from "./components/MatchHistory";
 import { PlayerDisplay } from "./components/PlayerDisplay";
+import SettingsIcon from '@mui/icons-material/Settings';
+import { Settings } from "@mui/icons-material";
+import ThemeSwitch from "./components/ThemeSwitch";
+import SimpleSwitch from "./components/SimpleSwitch";
+import { smashCodeNames } from "./const/smashCodeNames";
 
 
 
@@ -14,8 +19,8 @@ export default function Home() {
   const BLUE_WIN  = "BLUE_WIN"
   const RED_WIN = "RED_WIN"
 
-  const red = "#b20100"
-  const blue = "#0040ca"
+  const red = "#EE2C2B"
+  const blue = "#2980F4"
   const purple = 	"#FFD6D7"
 
   const redOne = "#EE2C2B"
@@ -32,7 +37,7 @@ export default function Home() {
   const [playerFour, setPlayerFour] = useState("")
   const [matchAmount, setMatchAmount] = useState(1)
   const [playerColors, setPlayerColors] = useState([red, red, blue, blue])
-  const [total, setTotal] = useState([null, null, null, null])
+  const [total, setTotal] = useState(["", "", "", ""])
   const [loading, setLoading] = useState(false)
   const [cachingFinished, setCachingFinished] = useState(false)
   const [history, setHistory] = useState([])
@@ -40,10 +45,16 @@ export default function Home() {
   const [matchStatus, setMatchStatus] = useState(IN_PROGRESS)
   const [histColors, setHistColors] = useState([])
 
+  const [settingsOpen, setSettingsOpen] = useState(false)
+
+  const [randomizeCharacters, setRandomizeCharacters] = useState(false)
+  const [includeExtraColors, setIncludeExtraColors] = useState(false)
+
   const [themeColor, setThemeColor] = useState("black")
   const [altThemeColor, setAltThemeColor] = useState("white")
 
   const [matchHistoryOpen, setMatchHistoryOpen] = useState(false)
+  const [playerCharacters, setPlayerCharacters] = useState(["", "", "", ""])
 
   const handleMatchHistoryClose = () => {
     setMatchHistoryOpen(false)
@@ -102,6 +113,9 @@ export default function Home() {
 
   const randomizeTeams = () => {
 
+    setLoading(true)
+    randomizeChars()
+
     let colors = [red, red, red, red]
 
     let indexOne = Math.floor(Math.random() * (4))
@@ -115,6 +129,10 @@ export default function Home() {
     setMatchStatus(IN_PROGRESS)
 
 
+
+    setTimeout(() => {
+      setLoading(false)
+    }, 1000);
     return
   }
 
@@ -139,12 +157,10 @@ export default function Home() {
       if (playerColors[i] == winner) {
         newTotal.push(parseInt(total[i]) + parseInt(matchAmount))
         alt[i] = 1
-        console.log(1)
       }
       else {
         newTotal.push(parseInt(total[i]) - parseInt(matchAmount))
         alt[i] = 0
-        console.log(2)
       }
 
       if (playerColors[i] == red) {
@@ -190,7 +206,6 @@ export default function Home() {
   }
 
   const undo = () => {
-    console.log(histAlt)
     if (histAlt.length > 0) {
     const lastMatch = histAlt[histAlt.length - 1]
     const tempTotal = []
@@ -198,7 +213,6 @@ export default function Home() {
     for (let i = 0; i < 4; i++) {
       if (lastMatch[i] == 1) {
         tempTotal[i] = parseInt(total[i]) - lastMatch[4]
-        console.log(parseInt(total[i]), lastMatch[4])
       }
       else {
         tempTotal[i]  = parseInt(total[i]) + lastMatch[4]
@@ -210,18 +224,58 @@ export default function Home() {
     if (histColors.length > 1) {
   
     setPlayerColors(histColors[histColors.length - 1])
-    setHistColors((prev) => (prev.slice(0, -1)))
 
     }
+
+    setHistColors((prev) => (prev.slice(0, -1)))
+    setHistory((prev) => (prev.slice(0, -1)))
 
     setTotal(tempTotal)
     setHistAlt((prev) => (prev.slice(0, -1)))
   }
   }
 
+  const themeSwitch = () => {
+    document.body.style.background = themeColor == "black" ? "white" : "#343434"
+    document.body.style.color = themeColor == "black" ? "black" : "white"
+    const currentTheme = themeColor
+    setThemeColor(altThemeColor)
+    setAltThemeColor(currentTheme)
+  }
+
+  const generateRandomCharacter = () => {
+    const index  = Math.floor(Math.random() * smashCodeNames.length);
+    let name = ""
+    if (smashCodeNames[index].length == 1) {
+      name = smashCodeNames[index][0]
+    }
+    else {
+      const secondIndex = Math.floor(Math.random() * smashCodeNames[index].length);
+      name = smashCodeNames[index][secondIndex]
+    }
+
+    if (index < 4) {
+      return name + "_00"
+    }
+
+    else {
+      const alt = Math.floor(Math.random() * 8);
+      return name + "_0" + alt.toString()
+    }
+  }
+
+  const randomizeChars = () => {
+    const chars = []
+    for (let i = 0; i < 4; i++) {
+      chars.push(generateRandomCharacter())
+    }
+    console.log(chars)
+    setPlayerCharacters(chars)
+  } 
+
   return (
-    <Box sx={{ height: "100vh", minHeight : "100vh", display: "flex", flexDirection: "column" }}>
-      <Box sx={{ display: "flex", mt : "16px"}}>
+    <Box sx={{height: "100vh", minHeight : "100vh", display: "flex", flexDirection: "column" }}>
+      <Box sx={{ display: "flex", mt : "24px", ml : "24px"}}>
         <Typography fontSize={30} sx={{color : altThemeColor, WebkitTextStrokeWidth : "1px", WebkitTextStrokeColor : altThemeColor, fontWeight : "bold"}} variant="h6" >Set Money Per Game : </Typography>
         <TextField size="small" sx={{
           "& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button": {
@@ -230,11 +284,33 @@ export default function Home() {
           "& input[type=number]": {
             MozAppearance: "textfield",
           }, width : "60px", mt : "-4px", ml : "8px",
-        }}inputProps={{style: {fontSize: 30, paddingLeft : "20px", color : altThemeColor, fontWeight: "bold"}}}  type="number" value={matchAmount} onChange={(e) => setMatchAmount(parseInt(e.target.value))}>{matchAmount}</TextField>
+        }}inputProps={{style: {fontSize: 30, paddingLeft : 0, paddingRight : 0, color : altThemeColor, fontWeight: "bold", textAlign : "center"}}}  type="number" value={matchAmount}  onChange={(e) => setMatchAmount(parseInt(e.target.value))}>{matchAmount}</TextField>
+        
+        <Button onClick={()=> (setSettingsOpen(!settingsOpen))} sx={{position : "absolute", right : 10, top : 10, background : themeColor, borderRadius : "15px", border : "2px solid white"}}>
+          <SettingsIcon sx={{width : "60px", height : "60px", color : altThemeColor}}/>
+        </Button>
+
+      </Box>
+
+      <Box sx={{position : "absolute", minHeight : settingsOpen ? "500px" : "0px", height : settingsOpen ? "500px" : "0px", width : "420px", background : themeColor, zIndex : 100, borderRadius : "15px", border : settingsOpen ? `3px solid ${altThemeColor}` : `0px solid ${altThemeColor}`, display : "flex", flexDirection : "column", overflow : "hidden", transition: "all 0.3s ease-out", right : 100}}>
+          <Box sx={{display : "flex"}}>
+            <Typography sx ={{fontWeight : "bold", fontSize : 24, WebkitTextStrokeWidth : "1px", WebkitTextStrokeColor : altThemeColor, ml : "24px", mt : "16px"}} variant="h6"> Theme </Typography>
+            <ThemeSwitch onChange={() => (themeSwitch())}  thememode={themeColor}></ThemeSwitch>
+          </Box>
+
+          <Box sx={{display : "flex"}}>
+            <Typography sx ={{fontWeight : "bold", fontSize : 24, WebkitTextStrokeWidth : "1px", WebkitTextStrokeColor : altThemeColor, ml : "24px", mt : "16px"}} variant="h6"> Randomize Characters </Typography>
+            <SimpleSwitch checked={randomizeCharacters} onChange={() => (setRandomizeCharacters(!randomizeCharacters))} thememode={themeColor}></SimpleSwitch>
+          </Box>
+
+          <Box sx={{display : "flex"}}>
+            <Typography sx ={{fontWeight : "bold", fontSize : 24, WebkitTextStrokeWidth : "1px", WebkitTextStrokeColor : altThemeColor, ml : "24px", mt : "16px"}} variant="h6"> Extra Colors </Typography>
+            <SimpleSwitch checked={includeExtraColors} onChange={() => (setIncludeExtraColors(!includeExtraColors))} thememode={themeColor}></SimpleSwitch>
+          </Box>
       </Box>
 
 
-      <Button onClick={() => randomizeTeams()} sx={{borderColor : altThemeColor,  width: "200px", margin: "auto", height: "120px", marginTop : "20px", marginBottom : "40px", background: "hsla(0, 85%, 55%, 1)",
+      <Button onClick={() => randomizeTeams()} sx={{borderColor : altThemeColor,  width: "200px", margin: "auto", height: "120px", marginTop : "-60px", marginBottom : "40px", background: "hsla(0, 85%, 55%, 1)",
 
       background: "linear-gradient(135deg, hsla(0, 85%, 55%, 1) 0%, hsla(214, 90%, 56%, 1) 100%)",
       
@@ -242,27 +318,31 @@ export default function Home() {
       
       background: "-webkit-linear-gradient(135deg, hsla(0, 85%, 55%, 1) 0%, hsla(214, 90%, 56%, 1) 100%)",
       
-      color : themeColor}}>
-        <QuestionMarkIcon></QuestionMarkIcon>
+      color : themeColor, borderWidth : "2px", borderStyle : "solid", borderColor: "black"}}>
+        <QuestionMarkIcon sx={{width : "80px", height : "80px"}}></QuestionMarkIcon>
       </Button>
 
 
       <Box sx={{ display: "flex", justifyContent: "center" }}>
         <PlayerDisplay playerName={playerOne} playerColor={playerColors[0]} 
                        setPlayerName={setPlayerOne} playerTotal={total[0]}
-                       changeOneTotal={changeOneTotal} loading={loading} playerId={0} />
+                       changeOneTotal={changeOneTotal} loading={loading} playerId={0}
+                       playerCharacter={playerCharacters[0]} />
 
         <PlayerDisplay playerName={playerTwo} playerColor={playerColors[1]} 
                        setPlayerName={setPlayerTwo} playerTotal={total[1]}
-                       changeOneTotal={changeOneTotal} loading={loading} playerId={1} />
+                       changeOneTotal={changeOneTotal} loading={loading} playerId={1} 
+                       playerCharacter={playerCharacters[1]}/>
 
         <PlayerDisplay playerName={playerThree} playerColor={playerColors[2]} 
                        setPlayerName={setPlayerThree} playerTotal={total[2]}
-                       changeOneTotal={changeOneTotal} loading={loading} playerId={2} />
+                       changeOneTotal={changeOneTotal} loading={loading} playerId={2} 
+                       playerCharacter={playerCharacters[2]}/>
 
         <PlayerDisplay playerName={playerFour} playerColor={playerColors[3]} 
                        setPlayerName={setPlayerFour} playerTotal={total[3]}
-                       changeOneTotal={changeOneTotal} loading={loading} playerId={3} />
+                       changeOneTotal={changeOneTotal} loading={loading} playerId={3}
+                       playerCharacter={playerCharacters[3]} />
 
         
 
@@ -270,35 +350,37 @@ export default function Home() {
 
       </Box>
 
-      <Box sx={{ display: "flex", justifyContent: "center", mt : "32px"}}>
+      <Box sx={{ display: "flex", justifyContent: "center", mt : "32px", alignItems : "center"}}>
 
         <Button onClick={() => (updateTotal(red))} sx={{
           "&:hover": {
             backgroundColor: red,
-          }, background: redOne, color: "black", width: "150px", height: "120px", mr: "280px", mt: "16px", color : "white", WebkitTextStrokeWidth : "1px", WebkitTextStrokeColor : "black", fontWeight : "bold", fontSize : 24, boxShadow : `${matchStatus === BLUE_WIN ? "0 0 100px ${red}" : " "}`
+          }, background: redOne, color: altThemeColor, width: "150px", height: "120px", mt: "16px", WebkitTextStrokeWidth : "1px", WebkitTextStrokeColor : altThemeColor, fontWeight : "bold", fontSize : 24, boxShadow : matchStatus == RED_WIN ? `0 0 100px ${red} ` : " "
         }}>Red Win</Button>
+
+        <Typography sx={{width : "290px", minWidth : "200px", color: altThemeColor, WebkitTextStrokeWidth : "1px", WebkitTextStrokeColor : altThemeColor, fontWeight : "bold", textAlign : "center", paddingTop : "20px"}} fontSize={32}> GAME {history.length}</Typography>
         <Button onClick={() => (updateTotal(blue))} sx={{
           "&:hover": {
             backgroundColor: blue,
-          }, background: blueOne, color: "black", width: "150px", height: "120px", ml: "8px", mt: "16px",  color : "white", WebkitTextStrokeWidth : "1px", WebkitTextStrokeColor : "black", fontWeight : "bold", fontSize : 24 , boxShadow : `${matchStatus === BLUE_WIN ? "0 0 100px ${blue}" : " "}`
+          }, background: blueOne, color: altThemeColor, width: "150px", height: "120px", mt: "16px", WebkitTextStrokeWidth : "1px", WebkitTextStrokeColor : altThemeColor, fontWeight : "bold", fontSize : 24 , boxShadow : matchStatus == BLUE_WIN ? `0 0 100px ${blue} ` : " ", 
         }}>Blue Win</Button>
 
       </Box>
 
 
       <Box> 
-        <Button onClick={() => (resetAll())} sx={{position : "absolute", color : altThemeColor, border: "solid", width : "200px", paddingBottom : "20px", paddingTop : "20px", bottom : 0, fontSize : 24, WebkitTextStrokeWidth : "1px", WebkitTextStrokeColor : altThemeColor, fontWeight : "bold"}}>Reset All</Button>
+        <Button onClick={() => (resetAll())} sx={{position : "absolute", color : altThemeColor, border: "solid", width : "200px", paddingBottom : "20px", paddingTop : "20px", bottom : 10, fontSize : 24, WebkitTextStrokeWidth : "1px", WebkitTextStrokeColor : altThemeColor, fontWeight : "bold",  background : themeColor}}>Reset All</Button>
       </Box>
 
 
       <Box sx={{display : "flex", justifyContent : "center"}}>
-        <Button onClick={() => (undo())} sx={{position : "absolute", color : altThemeColor, border: "solid", minWidth : "200px", paddingBottom : "20px", paddingTop : "20px", bottom : 0, ml: "250px", fontSize : 24, WebkitTextStrokeWidth : "1px", WebkitTextStrokeColor : altThemeColor, fontWeight : "bold"}}>Undo</Button>
-        <Button onClick={() => (setMatchHistoryOpen(true))} sx={{position : "absolute", color : altThemeColor, border: "solid", minWidth : "200px", paddingBottom : "20px", paddingTop : "20px", bottom : 0, mr: "250px", fontSize : 24, WebkitTextStrokeWidth : "1px", WebkitTextStrokeColor : altThemeColor, fontWeight : "bold"}}>Match History</Button>
+        <Button onClick={() => (undo())} sx={{position : "absolute", color : altThemeColor, border: "solid", minWidth : "200px", paddingBottom : "20px", paddingTop : "20px", bottom : 10, ml: "250px", fontSize : 24, WebkitTextStrokeWidth : "1px", WebkitTextStrokeColor : altThemeColor, fontWeight : "bold",  background : themeColor}}>Undo</Button>
+        <Button onClick={() => (setMatchHistoryOpen(true))} sx={{position : "absolute", color : altThemeColor, border: "solid", minWidth : "200px", paddingBottom : "20px", paddingTop : "20px", bottom : 10, mr: "250px", fontSize : 24, WebkitTextStrokeWidth : "1px", WebkitTextStrokeColor : altThemeColor, fontWeight : "bold", background : themeColor}}>Match History</Button>
       </Box>      
 
       <MatchHistory history={history} open={matchHistoryOpen} handleClose={handleMatchHistoryClose}/>
 
-      <Button onClick={() => ("SECRET BUTTON")} sx={{position : "absolute", color : altThemeColor, border: "solid", minWidth : "200px", paddingBottom : "20px", paddingTop : "20px", bottom : 0, right : 0, fontSize : 24, WebkitTextStrokeWidth : "1px", WebkitTextStrokeColor : altThemeColor, fontWeight : "bold", opacity : 0}}>TEST</Button>
+      <Button onClick={() => (console.log(playerCharacters))} sx={{position : "absolute", color : altThemeColor, border: "solid", minWidth : "200px", paddingBottom : "20px", paddingTop : "20px", bottom : 0, right : 0, fontSize : 24, WebkitTextStrokeWidth : "1px", WebkitTextStrokeColor : altThemeColor, fontWeight : "bold", opacity : 100}}>TEST</Button>
 
     </Box>
   );
