@@ -53,7 +53,7 @@ export const PlayerDisplay = ({playerColor, playerName, setPlayerName, playerTot
       <img style={{width : loading ?  "0px" : "50px", height : loading ? "0px" : "50px", paddingLeft : "25px", paddingTop : "12px", 
       transition: "all 1s",
       WebkitTransition: "all 1s",
-      MozTransition: "all 1s"}}  src={`/Stock Icons/No Gamma Fix/chara_2_${loading ? "miigunner_00" : playerCharacter}.png`}></img>
+      MozTransition: "all 1s"}}  src={`/Stock Icons/chara_2_${loading ? "miigunner_00" : playerCharacter}.png`}></img>
       </Box> }
        
 
