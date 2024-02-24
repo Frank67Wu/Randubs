@@ -114,7 +114,10 @@ export default function Home() {
   const randomizeTeams = () => {
 
     setLoading(true)
-    randomizeChars()
+
+    if (randomizeCharacters) {
+      randomizeChars()
+    }
 
     let colors = [red, red, red, red]
 
@@ -236,7 +239,7 @@ export default function Home() {
   }
 
   const themeSwitch = () => {
-    document.body.style.background = themeColor == "black" ? "white" : "#343434"
+    document.body.style.background = themeColor == "black" ? "#FAF9F6" : "#343434"
     document.body.style.color = themeColor == "black" ? "black" : "white"
     const currentTheme = themeColor
     setThemeColor(altThemeColor)
@@ -300,13 +303,13 @@ export default function Home() {
 
           <Box sx={{display : "flex"}}>
             <Typography sx ={{fontWeight : "bold", fontSize : 24, WebkitTextStrokeWidth : "1px", WebkitTextStrokeColor : altThemeColor, ml : "24px", mt : "16px"}} variant="h6"> Randomize Characters </Typography>
-            <SimpleSwitch checked={randomizeCharacters} onChange={() => (setRandomizeCharacters(!randomizeCharacters))} thememode={themeColor}></SimpleSwitch>
+            <SimpleSwitch disable={false} checked={randomizeCharacters} onChange={() => (setRandomizeCharacters(!randomizeCharacters))} thememode={themeColor}></SimpleSwitch>
           </Box>
 
           <Box sx={{display : "flex"}}>
-            <Typography sx ={{fontWeight : "bold", fontSize : 24, WebkitTextStrokeWidth : "1px", WebkitTextStrokeColor : altThemeColor, ml : "24px", mt : "16px"}} variant="h6"> Extra Colors </Typography>
-            <SimpleSwitch checked={includeExtraColors} onChange={() => (setIncludeExtraColors(!includeExtraColors))} thememode={themeColor}></SimpleSwitch>
-          </Box>
+            <Typography sx ={{fontWeight : "bold", fontSize : 24, WebkitTextStrokeWidth : "1px", WebkitTextStrokeColor : altThemeColor, ml : "24px", mt : "16px", opacity : 0}} variant="h6"> Extra Colors </Typography>
+            <SimpleSwitch disable={true} checked={includeExtraColors} onChange={() => (setIncludeExtraColors(!includeExtraColors))} thememode={themeColor}></SimpleSwitch>
+          </Box> 
       </Box>
 
 
@@ -376,7 +379,9 @@ export default function Home() {
       <Box sx={{display : "flex", justifyContent : "center"}}>
         <Button onClick={() => (undo())} sx={{position : "absolute", color : altThemeColor, border: "solid", minWidth : "200px", paddingBottom : "20px", paddingTop : "20px", bottom : 10, ml: "250px", fontSize : 24, WebkitTextStrokeWidth : "1px", WebkitTextStrokeColor : altThemeColor, fontWeight : "bold",  background : themeColor}}>Undo</Button>
         <Button onClick={() => (setMatchHistoryOpen(true))} sx={{position : "absolute", color : altThemeColor, border: "solid", minWidth : "200px", paddingBottom : "20px", paddingTop : "20px", bottom : 10, mr: "250px", fontSize : 24, WebkitTextStrokeWidth : "1px", WebkitTextStrokeColor : altThemeColor, fontWeight : "bold", background : themeColor}}>Match History</Button>
-      </Box>        
+      </Box>    
+      
+      <MatchHistory history={history} open={matchHistoryOpen} handleClose={handleMatchHistoryClose}/>
 
       <Button onClick={() => (console.log(playerCharacters))} sx={{"&:hover": {
         backgroundColor: themeColor,
