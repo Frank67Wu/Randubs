@@ -2,8 +2,8 @@ import { grey } from "@mui/material/colors";
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
-      <body style={{background : "#343434", color : "white"}}>{children}</body>
+    <html style={{height : "100%"}} lang="en">
+      <body style={{minHeight: "100vh" , position: "relative", background : "#343434", color : "white"}}>{children}</body>
     </html>
   );
 }

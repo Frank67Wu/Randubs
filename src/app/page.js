@@ -274,7 +274,7 @@ export default function Home() {
   } 
 
   return (
-    <Box sx={{height: "100vh", minHeight : "100vh", display: "flex", flexDirection: "column" }}>
+    <Box sx={{display: "flex", flexDirection: "column" }}>
       <Box sx={{ display: "flex", mt : "24px", ml : "24px"}}>
         <Typography fontSize={30} sx={{color : altThemeColor, WebkitTextStrokeWidth : "1px", WebkitTextStrokeColor : altThemeColor, fontWeight : "bold"}} variant="h6" >Set Money Per Game : </Typography>
         <TextField size="small" sx={{
@@ -350,18 +350,18 @@ export default function Home() {
 
       </Box>
 
-      <Box sx={{ display: "flex", justifyContent: "center", mt : "32px", alignItems : "center"}}>
+      <Box sx={{ display: "flex", justifyContent: "center", mt : "32px", alignItems : "center", mb : "150px"}}>
 
         <Button onClick={() => (updateTotal(red))} sx={{
           "&:hover": {
-            backgroundColor: red,
+            backgroundColor: redTwo,
           }, background: redOne, color: altThemeColor, width: "150px", height: "120px", mt: "16px", WebkitTextStrokeWidth : "1px", WebkitTextStrokeColor : altThemeColor, fontWeight : "bold", fontSize : 24, boxShadow : matchStatus == RED_WIN ? `0 0 100px ${red} ` : " "
         }}>Red Win</Button>
 
         <Typography sx={{width : "290px", minWidth : "200px", color: altThemeColor, WebkitTextStrokeWidth : "1px", WebkitTextStrokeColor : altThemeColor, fontWeight : "bold", textAlign : "center", paddingTop : "20px"}} fontSize={32}> GAME {history.length}</Typography>
         <Button onClick={() => (updateTotal(blue))} sx={{
           "&:hover": {
-            backgroundColor: blue,
+            backgroundColor: blueTwo,
           }, background: blueOne, color: altThemeColor, width: "150px", height: "120px", mt: "16px", WebkitTextStrokeWidth : "1px", WebkitTextStrokeColor : altThemeColor, fontWeight : "bold", fontSize : 24 , boxShadow : matchStatus == BLUE_WIN ? `0 0 100px ${blue} ` : " ", 
         }}>Blue Win</Button>
 
@@ -376,11 +376,11 @@ export default function Home() {
       <Box sx={{display : "flex", justifyContent : "center"}}>
         <Button onClick={() => (undo())} sx={{position : "absolute", color : altThemeColor, border: "solid", minWidth : "200px", paddingBottom : "20px", paddingTop : "20px", bottom : 10, ml: "250px", fontSize : 24, WebkitTextStrokeWidth : "1px", WebkitTextStrokeColor : altThemeColor, fontWeight : "bold",  background : themeColor}}>Undo</Button>
         <Button onClick={() => (setMatchHistoryOpen(true))} sx={{position : "absolute", color : altThemeColor, border: "solid", minWidth : "200px", paddingBottom : "20px", paddingTop : "20px", bottom : 10, mr: "250px", fontSize : 24, WebkitTextStrokeWidth : "1px", WebkitTextStrokeColor : altThemeColor, fontWeight : "bold", background : themeColor}}>Match History</Button>
-      </Box>      
+      </Box>        
 
-      <MatchHistory history={history} open={matchHistoryOpen} handleClose={handleMatchHistoryClose}/>
-
-      <Button onClick={() => (console.log(playerCharacters))} sx={{position : "absolute", color : altThemeColor, border: "solid", minWidth : "200px", paddingBottom : "20px", paddingTop : "20px", bottom : 0, right : 0, fontSize : 24, WebkitTextStrokeWidth : "1px", WebkitTextStrokeColor : altThemeColor, fontWeight : "bold", opacity : 100}}>TEST</Button>
+      <Button onClick={() => (console.log(playerCharacters))} sx={{"&:hover": {
+        backgroundColor: themeColor,
+      }, position : "absolute", color : altThemeColor, border: "solid", minWidth : "200px", paddingBottom : "20px", paddingTop : "20px", bottom : 0, right : 0, fontSize : 24, WebkitTextStrokeWidth : "1px", WebkitTextStrokeColor : altThemeColor, fontWeight : "bold", opacity : 0}}>TEST</Button>
 
     </Box>
   );

@@ -27,6 +27,16 @@ html, body {
   }
 }
 
+html {
+  height : 100%;
+  box-sizing: border-box;
+}
+
+body {
+  box-sizing: inherit;
+  position : relative;
+}
+
 
 @keyframes animate-color {
   0%   { color: red; }
