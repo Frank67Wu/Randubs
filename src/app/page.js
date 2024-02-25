@@ -1,6 +1,6 @@
 'use client'
 
-import { Box, TextField, Typography, Button, Container } from "@mui/material";
+import { Box, TextField, Typography, Button, Container, ToggleButton } from "@mui/material";
 import { useState, useEffect } from "react";
 import QuestionMarkIcon from '@mui/icons-material/QuestionMark';
 import { MatchHistory } from "./components/MatchHistory";
@@ -10,6 +10,7 @@ import { Settings } from "@mui/icons-material";
 import ThemeSwitch from "./components/ThemeSwitch";
 import SimpleSwitch from "./components/SimpleSwitch";
 import { smashCodeNames } from "./const/smashCodeNames";
+import { MyToggleButton } from "./components/MyToggleButton";
 
 
 
@@ -44,6 +45,9 @@ export default function Home() {
   const [histAlt, setHistAlt] = useState([])
   const [matchStatus, setMatchStatus] = useState(IN_PROGRESS)
   const [histColors, setHistColors] = useState([])
+  const [loadingTime, setLoadingTime] = useState(1)
+
+  const [characterHistory, setCharacterHistory] = useState([])
 
   const [settingsOpen, setSettingsOpen] = useState(false)
 
@@ -66,6 +70,14 @@ export default function Home() {
     const prev2 = localStorage.getItem("p2total") || "0"
     const prev3 = localStorage.getItem("p3total") || "0"
     const prev4 = localStorage.getItem("p4total") || "0"
+
+    setThemeColor(localStorage.getItem("theme") || "black")
+    setAltThemeColor(localStorage.getItem("altTheme") || "white")
+    setRandomizeCharacters(localStorage.getItem("randomize") == true ? true : false)
+    setLoadingTime(localStorage.getItem("loadingTime") || 1)
+
+    document.body.style.background = localStorage.getItem("altTheme") == "black" ? "#FFF5EE" : "#343434"
+    document.body.style.color = localStorage.getItem("altTheme") == "black" ? "black" : "white"
 
     
     setTotal([prev1, prev2, prev3, prev4])
@@ -109,7 +121,32 @@ export default function Home() {
     }
   }, [matchAmount])
 
+  useEffect(() => {
+    if (cachingFinished) {
+      localStorage.setItem("randomize",randomizeCharacters)
+    }
+  }, [randomizeCharacters])
 
+  useEffect(() => {
+    if (cachingFinished) {
+      localStorage.setItem("loadingTime",loadingTime)
+    }
+  }, [loadingTime])
+
+  useEffect(() => {
+    if (cachingFinished) {
+      localStorage.setItem("theme",themeColor)
+      localStorage.setItem("altTheme", altThemeColor)
+    }
+  }, [themeColor])
+
+  useEffect(() => {
+    console.log(randomizeCharacters)
+  }, [randomizeCharacters])
+
+  const changeLoadingTime = (e, newAlignment) => {
+    setLoadingTime(newAlignment);
+  };
 
   const randomizeTeams = () => {
 
@@ -131,11 +168,11 @@ export default function Home() {
 
     setMatchStatus(IN_PROGRESS)
 
-
+    const lt = loadingTime || 1
 
     setTimeout(() => {
       setLoading(false)
-    }, 1000);
+    }, lt * 1000);
     return
   }
 
@@ -145,6 +182,9 @@ export default function Home() {
   }
 
   const updateTotal = (winner) => {
+    if (loading) {
+      return 0
+    }
     if (winner == red) {
       setMatchStatus(RED_WIN)
     }
@@ -152,11 +192,13 @@ export default function Home() {
       setMatchStatus(BLUE_WIN)
     }
     const players = [playerOne, playerTwo, playerThree, playerFour]
+    let chars = []
     let hist = []
     let alt = []
     let newTotal = []
     let histCol = []
     for (let i = 0; i < 4; i++) {
+      chars.push(playerCharacters[i])
       if (playerColors[i] == winner) {
         newTotal.push(parseInt(total[i]) + parseInt(matchAmount))
         alt[i] = 1
@@ -189,6 +231,7 @@ export default function Home() {
     }
 
     setHistory((oldhist) => [...oldhist, hist])
+    setCharacterHistory((prev) => [...prev, chars])
     setTotal(newTotal)
     setHistAlt((oldAlt) => [...oldAlt, alt])
     setHistColors((oldColors) => [...oldColors, histCol])
@@ -209,6 +252,9 @@ export default function Home() {
   }
 
   const undo = () => {
+    if (loading) {
+      return 0
+    }
     if (histAlt.length > 0) {
     const lastMatch = histAlt[histAlt.length - 1]
     const tempTotal = []
@@ -232,6 +278,7 @@ export default function Home() {
 
     setHistColors((prev) => (prev.slice(0, -1)))
     setHistory((prev) => (prev.slice(0, -1)))
+    setCharacterHistory((prev) => (prev.slice(0, -1)))
 
     setTotal(tempTotal)
     setHistAlt((prev) => (prev.slice(0, -1)))
@@ -278,7 +325,7 @@ export default function Home() {
 
   return (
     <Box sx={{display: "flex", flexDirection: "column" }}>
-      <Box sx={{ display: "flex", mt : "24px", ml : "24px"}}>
+      <Box sx={{ display: "flex", mt : "24px", ml : "24px",}}>
         <Typography fontSize={30} sx={{color : altThemeColor, WebkitTextStrokeWidth : "1px", WebkitTextStrokeColor : altThemeColor, fontWeight : "bold"}} variant="h6" >Set Money Per Game : </Typography>
         <TextField size="small" sx={{
           "& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button": {
@@ -307,9 +354,17 @@ export default function Home() {
           </Box>
 
           <Box sx={{display : "flex"}}>
+            <Typography sx ={{fontWeight : "bold", fontSize : 24, WebkitTextStrokeWidth : "1px", WebkitTextStrokeColor : altThemeColor, ml : "24px", mt : "24px"}} variant="h6"> Loading Time </Typography>
+            <MyToggleButton theme={themeColor} alignment={loadingTime} handleAlignment={changeLoadingTime}></MyToggleButton>
+          </Box> 
+
+          <Box sx={{display : "flex", }}>
             <Typography sx ={{fontWeight : "bold", fontSize : 24, WebkitTextStrokeWidth : "1px", WebkitTextStrokeColor : altThemeColor, ml : "24px", mt : "16px", opacity : 0}} variant="h6"> Extra Colors </Typography>
             <SimpleSwitch disable={true} checked={includeExtraColors} onChange={() => (setIncludeExtraColors(!includeExtraColors))} thememode={themeColor}></SimpleSwitch>
           </Box> 
+
+          
+          
       </Box>
 
 
@@ -330,22 +385,22 @@ export default function Home() {
         <PlayerDisplay playerName={playerOne} playerColor={playerColors[0]} 
                        setPlayerName={setPlayerOne} playerTotal={total[0]}
                        changeOneTotal={changeOneTotal} loading={loading} playerId={0}
-                       playerCharacter={playerCharacters[0]} />
+                       playerCharacter={playerCharacters[0]} randomizeCharacters={randomizeCharacters}/>
 
         <PlayerDisplay playerName={playerTwo} playerColor={playerColors[1]} 
                        setPlayerName={setPlayerTwo} playerTotal={total[1]}
                        changeOneTotal={changeOneTotal} loading={loading} playerId={1} 
-                       playerCharacter={playerCharacters[1]}/>
+                       playerCharacter={playerCharacters[1]} randomizeCharacters={randomizeCharacters}/>
 
         <PlayerDisplay playerName={playerThree} playerColor={playerColors[2]} 
                        setPlayerName={setPlayerThree} playerTotal={total[2]}
                        changeOneTotal={changeOneTotal} loading={loading} playerId={2} 
-                       playerCharacter={playerCharacters[2]}/>
+                       playerCharacter={playerCharacters[2]} randomizeCharacters={randomizeCharacters}/>
 
         <PlayerDisplay playerName={playerFour} playerColor={playerColors[3]} 
                        setPlayerName={setPlayerFour} playerTotal={total[3]}
                        changeOneTotal={changeOneTotal} loading={loading} playerId={3}
-                       playerCharacter={playerCharacters[3]} />
+                       playerCharacter={playerCharacters[3]} randomizeCharacters={randomizeCharacters} />
 
         
 
@@ -381,11 +436,7 @@ export default function Home() {
         <Button onClick={() => (setMatchHistoryOpen(true))} sx={{position : "absolute", color : altThemeColor, border: "solid", minWidth : "200px", paddingBottom : "20px", paddingTop : "20px", bottom : 10, mr: "250px", fontSize : 24, WebkitTextStrokeWidth : "1px", WebkitTextStrokeColor : altThemeColor, fontWeight : "bold", background : themeColor}}>Match History</Button>
       </Box>    
       
-      <MatchHistory history={history} open={matchHistoryOpen} handleClose={handleMatchHistoryClose}/>
-
-      <Button onClick={() => (console.log(playerCharacters))} sx={{"&:hover": {
-        backgroundColor: themeColor,
-      }, position : "absolute", color : altThemeColor, border: "solid", minWidth : "200px", paddingBottom : "20px", paddingTop : "20px", bottom : 0, right : 0, fontSize : 24, WebkitTextStrokeWidth : "1px", WebkitTextStrokeColor : altThemeColor, fontWeight : "bold", opacity : 0}}>TEST</Button>
+      <MatchHistory characterHistory={characterHistory} background={themeColor} history={history} open={matchHistoryOpen} handleClose={handleMatchHistoryClose}/>
 
     </Box>
   );

@@ -59,5 +59,5 @@ const MaterialUISwitch = styled(Switch)(({ theme, thememode }) => ({
   
 
   export default function ThemeSwitch({thememode, onChange}) {
-    return (<MaterialUISwitch onChange={onChange} checked={thememode === "black" ? true : false} thememode={thememode} sx={{ mt : "10px", ml : "20px"}} defaultChecked />)
+    return (<MaterialUISwitch onChange={onChange} checked={thememode === "black" ? true : false} thememode={thememode} sx={{ mt : "10px", ml : "202px"}} defaultChecked />)
   }
