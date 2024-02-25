@@ -140,10 +140,6 @@ export default function Home() {
     }
   }, [themeColor])
 
-  useEffect(() => {
-    console.log(randomizeCharacters)
-  }, [randomizeCharacters])
-
   const changeLoadingTime = (e, newAlignment) => {
     setLoadingTime(newAlignment);
   };
@@ -319,7 +315,6 @@ export default function Home() {
     for (let i = 0; i < 4; i++) {
       chars.push(generateRandomCharacter())
     }
-    console.log(chars)
     setPlayerCharacters(chars)
   } 
 
@@ -385,7 +380,8 @@ export default function Home() {
         <PlayerDisplay playerName={playerOne} playerColor={playerColors[0]} 
                        setPlayerName={setPlayerOne} playerTotal={total[0]}
                        changeOneTotal={changeOneTotal} loading={loading} playerId={0}
-                       playerCharacter={playerCharacters[0]} randomizeCharacters={randomizeCharacters}/>
+                       playerCharacter={playerCharacters[0]} randomizeCharacters={randomizeCharacters}
+                       />
 
         <PlayerDisplay playerName={playerTwo} playerColor={playerColors[1]} 
                        setPlayerName={setPlayerTwo} playerTotal={total[1]}

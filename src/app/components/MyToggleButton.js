@@ -17,14 +17,14 @@ export const MyToggleButton = ({alignment, handleAlignment, theme}) => {
 
   return (
     <ToggleButtonGroup
-      sx ={{mt : "16px", ml : "48px", background : "white"}}
+      sx ={{mt : "16px", ml : "40px", background : "white"}}
       value={alignment}
       exclusive
       onChange={handleAlignment}
       aria-label="text alignment"
     >
-    <ToggleButton value={0} aria-label="left aligned">
-    <Typography sx={style}> 0 </Typography>
+    <ToggleButton value={0.5} aria-label="left aligned">
+    <Typography sx={style}> .5 </Typography>
   </ToggleButton>
   <ToggleButton value={1} aria-label="centered">
   <Typography sx={style}> 1 </Typography>
