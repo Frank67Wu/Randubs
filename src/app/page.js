@@ -505,15 +505,15 @@ export default function Home() {
         <Button onClick={() => (updateTotal(colorOne[0]))} sx={{
           "&:hover": {
             backgroundColor: colorOne[1],
-          }, background: colorOne[0], color: altThemeColor, width: "160px", height: "120px", mt: "16px", WebkitTextStrokeWidth: "1px", WebkitTextStrokeColor: altThemeColor, fontWeight: "bold", fontSize: 24, boxShadow: matchStatus == COLOR_ONE_WIN ? `0 0 100px ${colorOne[0]} ` : " "
-        }}>{cols[0]} Win</Button>
+          }, background: colorOne[0], color: altThemeColor, width : screenWidth > 900 ? "200px" : "150px", height: "120px", mt: "16px", WebkitTextStrokeWidth: "1px", WebkitTextStrokeColor: altThemeColor, fontWeight: "bold", fontSize: 24, boxShadow: matchStatus == COLOR_ONE_WIN ? `0 0 100px ${colorOne[0]} ` : " "
+        }}>{cols[0]} Win</Button> 
 
         <Typography sx={{ width: "200px", minWidth: "200px", color: altThemeColor, WebkitTextStrokeWidth: "1px", WebkitTextStrokeColor: altThemeColor, fontWeight: "bold", textAlign: "center", paddingTop: "20px" }} fontSize={32}> GAME {history.length}</Typography>
 
         <Button onClick={() => (updateTotal(colorTwo[0]))} sx={{
           "&:hover": {
             backgroundColor: colorTwo[1],
-          }, background: colorTwo[0], color: altThemeColor, width: "160px", height: "120px", mt: "16px", WebkitTextStrokeWidth: "1px", WebkitTextStrokeColor: altThemeColor, fontWeight: "bold", fontSize: 24, boxShadow: matchStatus == COLOR_TWO_WIN ? `0 0 100px ${colorTwo[0]} ` : " ",
+          }, background: colorTwo[0], color: altThemeColor, width : screenWidth > 900 ? "200px" : "150px", height: "120px", mt: "16px", WebkitTextStrokeWidth: "1px", WebkitTextStrokeColor: altThemeColor, fontWeight: "bold", fontSize: 24, boxShadow: matchStatus == COLOR_TWO_WIN ? `0 0 100px ${colorTwo[0]} ` : " ",
         }}>{cols[1]} Win</Button>
 
       </Box>
