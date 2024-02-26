@@ -430,7 +430,7 @@ export default function Home() {
         </Box>
 
         <Box sx={{ display: "flex" }}>
-          <Typography sx={{ fontWeight: "bold", fontSize: 24, WebkitTextStrokeWidth: "1px", WebkitTextStrokeColor: altThemeColor, ml: "24px", mt: "16px" }} variant="h6"> Randomize Characters </Typography>
+          <Typography sx={{ fontWeight: "bold", fontSize: 24, WebkitTextStrokeWidth: "1px", WebkitTextStrokeColor: altThemeColor, ml: "24px", mt: "28px" }} variant="h6"> Randomize Characters </Typography>
           <SimpleSwitch ml={"20px"} disable={false} checked={randomizeCharacters} onChange={() => (setRandomizeCharacters(!randomizeCharacters))} thememode={themeColor}></SimpleSwitch>
         </Box>
 
@@ -440,7 +440,7 @@ export default function Home() {
         </Box>
 
         <Box sx={{ display: "flex" }}>
-          <Typography sx={{ fontWeight: "bold", fontSize: 24, WebkitTextStrokeWidth: "1px", WebkitTextStrokeColor: altThemeColor, ml: "24px", mt: "16px" }} variant="h6"> Include Miis </Typography>
+          <Typography sx={{ fontWeight: "bold", fontSize: 24, WebkitTextStrokeWidth: "1px", WebkitTextStrokeColor: altThemeColor, ml: "24px", mt: "28px" }} variant="h6"> Include Miis </Typography>
           <SimpleSwitch ml={"144px"} disable={false} checked={includeMiis} onChange={() => (setIncludeMiis(!includeMiis))} thememode={themeColor}></SimpleSwitch>
         </Box>
 
