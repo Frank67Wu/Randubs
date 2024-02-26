@@ -371,8 +371,8 @@ export default function Home() {
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column" }}>
-      <Box sx={{ display: "flex", mt: "24px", ml: "12px", flexWrap: "wrap", height: "100px" }}>
-        <AttachMoneyIcon sx={{ width: "60px", height: "60px", mt: "-4px" }}></AttachMoneyIcon>
+      <Box sx={{ display: "flex", mt: "24px", ml: "4px", flexWrap: "wrap", height: "100px" }}>
+        <AttachMoneyIcon sx={{ width: screenWidth > 900 ? "60px" : "30px", height: screenWidth > 900 ? "60px" : "30px", mt: "-4px", mt : screenWidth > 900 ? 0 : "10px" }}></AttachMoneyIcon>
         <TextField size="small" sx={{
           "& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button": {
             display: "none",
@@ -384,14 +384,18 @@ export default function Home() {
 
       </Box>
 
-      <Button onClick={() => (setSettingsOpen(!settingsOpen))} sx={{ position: "absolute", right: 10, top: 10, background: themeColor, borderRadius: "15px", border: "2px solid white" }}>
-        <SettingsIcon sx={{ width: "60px", height: "60px", color: altThemeColor }} />
+      <Button onClick={() => (setSettingsOpen(!settingsOpen))} sx={{ position: "absolute", right: 10, top: 10, background: themeColor, borderRadius: "15px", border: "2px solid white", padding : screenWidth > 900 ? "10px 10px 10px 10px" : "15px 0px 15px 0px", zIndex : 101}}>
+        <SettingsIcon sx={{ width: screenWidth > 900 ? "60px" : "30px", height: screenWidth > 900 ? "60px" : "30px", color: altThemeColor,}} />
       </Button>
 
       <Box sx={{
         position: "absolute", minHeight: settingsOpen ? "60%" : "0px", height: settingsOpen ? "70%" : "0px", width: "32%", minWidth:
-          "400px", background: themeColor, zIndex: 100, borderRadius: "15px", border: settingsOpen ? `3px solid ${altThemeColor}` : `0px solid ${altThemeColor}`, display: "flex", flexDirection: "column", overflow: "hidden", transition: "all 0.3s ease-out", right: 100
+          "400px", background: themeColor, zIndex: 100, borderRadius: "15px", border: settingsOpen ? `3px solid ${altThemeColor}` : `0px solid ${altThemeColor}`, display: "flex", flexDirection: "column", overflow: "hidden", transition: "all 0.3s ease-out", right: 0
       }}>
+
+        <Box sx={{ display: "flex", mb : "16px" }}>
+          <Typography sx={{ fontWeight: "bold", fontSize: 44, WebkitTextStrokeWidth: "1px", WebkitTextStrokeColor: altThemeColor, ml: "24px", mt: "24px" }} variant="h6"> Settings </Typography>
+        </Box>
         <Box sx={{ display: "flex" }}>
           <Typography sx={{ fontWeight: "bold", fontSize: 24, WebkitTextStrokeWidth: "1px", WebkitTextStrokeColor: altThemeColor, ml: "24px", mt: "16px" }} variant="h6"> Theme </Typography>
           <ThemeSwitch onChange={() => (themeSwitch())} thememode={themeColor}></ThemeSwitch>
@@ -477,7 +481,7 @@ export default function Home() {
           }, background: redOne, color: altThemeColor, width: "160px", height: "120px", mt: "16px", WebkitTextStrokeWidth: "1px", WebkitTextStrokeColor: altThemeColor, fontWeight: "bold", fontSize: 24, boxShadow: matchStatus == RED_WIN ? `0 0 100px ${red} ` : " "
         }}>Red Win</Button>
 
-        <Typography sx={{ width: "290px", minWidth: "200px", color: altThemeColor, WebkitTextStrokeWidth: "1px", WebkitTextStrokeColor: altThemeColor, fontWeight: "bold", textAlign: "center", paddingTop: "20px" }} fontSize={32}> GAME {history.length}</Typography>
+        <Typography sx={{ width: "200px", minWidth: "200px", color: altThemeColor, WebkitTextStrokeWidth: "1px", WebkitTextStrokeColor: altThemeColor, fontWeight: "bold", textAlign: "center", paddingTop: "20px" }} fontSize={32}> GAME {history.length}</Typography>
         <Button onClick={() => (updateTotal(blue))} sx={{
           "&:hover": {
             backgroundColor: blueTwo,
@@ -507,7 +511,7 @@ export default function Home() {
 
       <Link href="https://forms.gle/TmG5wPV442KwRhRe8" passHref={true}>
       <Box>
-      <Button sx={{ position: "absolute", color: altThemeColor, border: "solid", minWidth: screenWidth > 900 ? "200px" : "50px", padding: screenWidth > 900 ? "20px 0px 20px 0px" : "20px 20px 20px 20px", bottom: 10, right: 10, fontSize: 24, WebkitTextStrokeWidth: "1px", WebkitTextStrokeColor: altThemeColor, fontWeight: "bold", background: themeColor }}>
+      <Button sx={{ position: "absolute", color: altThemeColor, border: "solid", minWidth: screenWidth > 900 ? "200px" : "50px", padding: screenWidth > 900 ? "20px 0px 20px 0px" : "20px 20px 20px 20px", bottom: 10, right: 0, fontSize: 24, WebkitTextStrokeWidth: "1px", WebkitTextStrokeColor: altThemeColor, fontWeight: "bold", background: themeColor }}>
         {screenWidth > 900 ? "Feedback" : <FeedbackIcon sx={{ width: "40px", height: "40px" }}></FeedbackIcon>}</Button>
     </Box>
       </Link>

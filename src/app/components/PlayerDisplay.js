@@ -15,7 +15,7 @@ export const PlayerDisplay = ({playerColor, playerName, setPlayerName, playerTot
     const purple = 	"#FFD6D7"
     
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", ml: "8px", mr: "8px",  alignItems : "center"}}>
+    <Box sx={{ display: "flex", flexDirection: "column", ml: "4px", mr: "4px", mb : "4px",  alignItems : "center"}}>
           <TextField variant="standard"
 
             sx={{borderRadius : "50px", marginBottom : "10px", border : "solid", borderColor : "black", borderWidth : "2px", 
