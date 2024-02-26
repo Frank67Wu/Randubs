@@ -8,7 +8,7 @@ export const SmashPlayerBox = ({colors, loading}) => {
 
 
   return (
-    <Container sx={{height:  "150px", width : "200px", overflow : "hidden", position : "relative", border: "solid", borderColor : "black"}}>
+    <Container sx={{height:  "150px", width : "190px", overflow : "hidden", position : "relative", border: "solid", borderColor : "black"}}>
       <Box sx={{
         position: "absolute" , height: 0, width : 0, borderLeft: "130px solid transparent", borderTop: `140px solid white`, zIndex: 4, marginLeft : "45px", marginTop : "-10px"
         }}>

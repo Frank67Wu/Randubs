@@ -12,12 +12,12 @@ export const MyToggleButton = ({alignment, handleAlignment, theme}) => {
   const color = theme == "black" ? "white" : "black"
 
   const style = {fontSize : 32, WebkitTextStrokeWidth : "1px", WebkitTextStrokeColor : "black", color : "black", mt : "-10px", mb : "-10px"}
-  
-
+  const padding = {paddingLeft : "4px", paddingRight : "4px"}
+  const toggleStyle = {minWidth : "38px"}
 
   return (
     <ToggleButtonGroup
-      sx ={{mt : "16px", ml : "40px", background : "white"}}
+      sx ={{mt : "16px", ml : "18px", background : "white"}}
       value={alignment}
       exclusive
       onChange={handleAlignment}
@@ -27,13 +27,13 @@ export const MyToggleButton = ({alignment, handleAlignment, theme}) => {
     <Typography sx={style}> .5 </Typography>
   </ToggleButton>
   <ToggleButton value={1} aria-label="centered">
-  <Typography sx={style}> 1 </Typography>
+  <Typography sx={[style, padding]}> 1 </Typography>
   </ToggleButton>
   <ToggleButton value={2} aria-label="right aligned">
-  <Typography sx={style}> 2 </Typography>
+  <Typography sx={[style, padding]}> 2 </Typography>
   </ToggleButton>
   <ToggleButton value={5} aria-label="justified">
-  <Typography sx={style}> 5 </Typography>
+  <Typography sx={[style, padding]}> 5 </Typography>
   </ToggleButton>
 </ToggleButtonGroup>
   )

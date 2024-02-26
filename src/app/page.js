@@ -1,28 +1,35 @@
 'use client'
 
 import { Box, TextField, Typography, Button, Container, ToggleButton } from "@mui/material";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useLayoutEffect } from "react";
 import QuestionMarkIcon from '@mui/icons-material/QuestionMark';
 import { MatchHistory } from "./components/MatchHistory";
 import { PlayerDisplay } from "./components/PlayerDisplay";
 import SettingsIcon from '@mui/icons-material/Settings';
-import { Settings } from "@mui/icons-material";
 import ThemeSwitch from "./components/ThemeSwitch";
 import SimpleSwitch from "./components/SimpleSwitch";
 import { smashCodeNames } from "./const/smashCodeNames";
 import { MyToggleButton } from "./components/MyToggleButton";
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+import UndoIcon from '@mui/icons-material/Undo';
+import HistoryIcon from '@mui/icons-material/History';
+import RestartAltIcon from '@mui/icons-material/RestartAlt';
+import { ConfirmationDialog } from "./components/ConfirmationDialog";
+import FeedbackIcon from '@mui/icons-material/Feedback';
+import Link from 'next/link'; 
+
 
 
 
 export default function Home() {
 
   const IN_PROGRESS = "IN PROGRESS"
-  const BLUE_WIN  = "BLUE_WIN"
+  const BLUE_WIN = "BLUE_WIN"
   const RED_WIN = "RED_WIN"
 
   const red = "#EE2C2B"
   const blue = "#2980F4"
-  const purple = 	"#FFD6D7"
+  const purple = "#FFD6D7"
 
   const redOne = "#EE2C2B"
   const redTwo = "#F3625A"
@@ -46,8 +53,10 @@ export default function Home() {
   const [matchStatus, setMatchStatus] = useState(IN_PROGRESS)
   const [histColors, setHistColors] = useState([])
   const [loadingTime, setLoadingTime] = useState(1)
+  const [includeMiis, setIncludeMiis] = useState(true)
 
   const [characterHistory, setCharacterHistory] = useState([])
+  const [confirmResetOpen, setConfirmResetOpen] = useState(false)
 
   const [settingsOpen, setSettingsOpen] = useState(false)
 
@@ -60,40 +69,61 @@ export default function Home() {
   const [matchHistoryOpen, setMatchHistoryOpen] = useState(false)
   const [playerCharacters, setPlayerCharacters] = useState(["", "", "", ""])
 
+
+  function useWindowSize() {
+    const [size, setSize] = useState([0, 0]);
+    useLayoutEffect(() => {
+      function updateSize() {
+        setSize([window.innerWidth, window.innerHeight]);
+      }
+      window.addEventListener('resize', updateSize);
+      updateSize();
+      return () => window.removeEventListener('resize', updateSize);
+    }, []);
+    return size;
+  }
+
+  const [screenWidth, screenHeight] = useWindowSize()
+
   const handleMatchHistoryClose = () => {
     setMatchHistoryOpen(false)
   }
 
+  const handleConfirmResetClose = () => {
+    setConfirmResetOpen(false)
+  }
+
   useEffect(() => {
     if (!cachingFinished) {
-    const prev1 = localStorage.getItem("p1total") || "0"
-    const prev2 = localStorage.getItem("p2total") || "0"
-    const prev3 = localStorage.getItem("p3total") || "0"
-    const prev4 = localStorage.getItem("p4total") || "0"
+      const prev1 = localStorage.getItem("p1total") || "0"
+      const prev2 = localStorage.getItem("p2total") || "0"
+      const prev3 = localStorage.getItem("p3total") || "0"
+      const prev4 = localStorage.getItem("p4total") || "0"
 
-    setThemeColor(localStorage.getItem("theme") || "black")
-    setAltThemeColor(localStorage.getItem("altTheme") || "white")
-    setRandomizeCharacters(localStorage.getItem("randomize") == true ? true : false)
-    setLoadingTime(localStorage.getItem("loadingTime") || 1)
+      setThemeColor(localStorage.getItem("theme") || "black")
+      setAltThemeColor(localStorage.getItem("altTheme") || "white")
+      setRandomizeCharacters(localStorage.getItem("randomize") == "true" ? true : false)
+      setLoadingTime(localStorage.getItem("loadingTime") || 1)
+      setIncludeMiis(localStorage.getItem("includeMiis") == "false" ? false : true)
 
-    document.body.style.background = localStorage.getItem("altTheme") == "black" ? "#FFF5EE" : "#343434"
-    document.body.style.color = localStorage.getItem("altTheme") == "black" ? "black" : "white"
+      document.body.style.background = localStorage.getItem("altTheme") == "black" ? "#FFF5EE" : "#343434"
+      document.body.style.color = localStorage.getItem("altTheme") == "black" ? "black" : "white"
 
-    
-    setTotal([prev1, prev2, prev3, prev4])
 
-    setPlayerOne(localStorage.getItem("p1") || "Player One")
-    setPlayerTwo(localStorage.getItem("p2") || "Player Two")
-    setPlayerThree(localStorage.getItem("p3") || "Player Three")
-    setPlayerFour(localStorage.getItem("p4") || "Player Four")
+      setTotal([prev1, prev2, prev3, prev4])
 
-    if (!isNaN(localStorage.getItem("matchAmount"))) {
-      setMatchAmount(1)
-    }
-    else {
-      setMatchAmount(localStorage.getItem("matchAmount"))
-    } 
-    setCachingFinished(true)
+      setPlayerOne(localStorage.getItem("p1") || "Player One")
+      setPlayerTwo(localStorage.getItem("p2") || "Player Two")
+      setPlayerThree(localStorage.getItem("p3") || "Player Three")
+      setPlayerFour(localStorage.getItem("p4") || "Player Four")
+
+      if (!isNaN(localStorage.getItem("matchAmount"))) {
+        setMatchAmount(1)
+      }
+      else {
+        setMatchAmount(localStorage.getItem("matchAmount"))
+      }
+      setCachingFinished(true)
     }
   }, [])
 
@@ -108,10 +138,10 @@ export default function Home() {
 
   useEffect(() => {
     if (cachingFinished) {
-    localStorage.setItem("p1total", total[0])
-    localStorage.setItem("p2total", total[1])
-    localStorage.setItem("p3total", total[2])
-    localStorage.setItem("p4total", total[3])
+      localStorage.setItem("p1total", total[0])
+      localStorage.setItem("p2total", total[1])
+      localStorage.setItem("p3total", total[2])
+      localStorage.setItem("p4total", total[3])
     }
   }, [total])
 
@@ -123,22 +153,28 @@ export default function Home() {
 
   useEffect(() => {
     if (cachingFinished) {
-      localStorage.setItem("randomize",randomizeCharacters)
+      localStorage.setItem("randomize", randomizeCharacters)
     }
   }, [randomizeCharacters])
 
   useEffect(() => {
     if (cachingFinished) {
-      localStorage.setItem("loadingTime",loadingTime)
+      localStorage.setItem("loadingTime", loadingTime)
     }
   }, [loadingTime])
 
   useEffect(() => {
     if (cachingFinished) {
-      localStorage.setItem("theme",themeColor)
+      localStorage.setItem("theme", themeColor)
       localStorage.setItem("altTheme", altThemeColor)
     }
   }, [themeColor])
+
+  useEffect(() => {
+    if (cachingFinished) {
+      localStorage.setItem("includeMiis", includeMiis)
+    }
+  }, [includeMiis])
 
   const changeLoadingTime = (e, newAlignment) => {
     setLoadingTime(newAlignment);
@@ -214,7 +250,7 @@ export default function Home() {
 
     if (winner == red) {
       hist.push(0)
-    } 
+    }
     else {
       hist.push(1)
     }
@@ -236,7 +272,7 @@ export default function Home() {
 
   const changeOneTotal = (player, newValue) => {
     const newTotal = []
-    for (let i = 0; i < 4 ; i++) {
+    for (let i = 0; i < 4; i++) {
       if (i === player) {
         newTotal.push(newValue)
       }
@@ -252,33 +288,33 @@ export default function Home() {
       return 0
     }
     if (histAlt.length > 0) {
-    const lastMatch = histAlt[histAlt.length - 1]
-    const tempTotal = []
+      const lastMatch = histAlt[histAlt.length - 1]
+      const tempTotal = []
 
-    for (let i = 0; i < 4; i++) {
-      if (lastMatch[i] == 1) {
-        tempTotal[i] = parseInt(total[i]) - lastMatch[4]
+      for (let i = 0; i < 4; i++) {
+        if (lastMatch[i] == 1) {
+          tempTotal[i] = parseInt(total[i]) - lastMatch[4]
+        }
+        else {
+          tempTotal[i] = parseInt(total[i]) + lastMatch[4]
+        }
+
+
       }
-      else {
-        tempTotal[i]  = parseInt(total[i]) + lastMatch[4]
+
+      if (histColors.length > 1) {
+
+        setPlayerColors(histColors[histColors.length - 1])
+
       }
 
-      
+      setHistColors((prev) => (prev.slice(0, -1)))
+      setHistory((prev) => (prev.slice(0, -1)))
+      setCharacterHistory((prev) => (prev.slice(0, -1)))
+
+      setTotal(tempTotal)
+      setHistAlt((prev) => (prev.slice(0, -1)))
     }
-
-    if (histColors.length > 1) {
-  
-    setPlayerColors(histColors[histColors.length - 1])
-
-    }
-
-    setHistColors((prev) => (prev.slice(0, -1)))
-    setHistory((prev) => (prev.slice(0, -1)))
-    setCharacterHistory((prev) => (prev.slice(0, -1)))
-
-    setTotal(tempTotal)
-    setHistAlt((prev) => (prev.slice(0, -1)))
-  }
   }
 
   const themeSwitch = () => {
@@ -290,7 +326,13 @@ export default function Home() {
   }
 
   const generateRandomCharacter = () => {
-    const index  = Math.floor(Math.random() * smashCodeNames.length);
+    let index = 0
+    if (!includeMiis) {
+      index = Math.floor(Math.random() * (smashCodeNames.length - 3)) + 3;
+    }
+    else {
+      index = Math.floor(Math.random() * smashCodeNames.length);
+    }
     let name = ""
     if (smashCodeNames[index].length == 1) {
       name = smashCodeNames[index][0]
@@ -300,7 +342,7 @@ export default function Home() {
       name = smashCodeNames[index][secondIndex]
     }
 
-    if (index < 4) {
+    if (index < 3) {
       return name + "_00"
     }
 
@@ -316,123 +358,163 @@ export default function Home() {
       chars.push(generateRandomCharacter())
     }
     setPlayerCharacters(chars)
-  } 
+  }
+
+  const confirmReset = (choice) => {
+    if (choice == "YES") {
+      resetAll()
+    }
+    else if (choice == "NO") {
+      setConfirmResetOpen(false)
+    }
+  }
 
   return (
-    <Box sx={{display: "flex", flexDirection: "column" }}>
-      <Box sx={{ display: "flex", mt : "24px", ml : "24px",}}>
-        <Typography fontSize={30} sx={{color : altThemeColor, WebkitTextStrokeWidth : "1px", WebkitTextStrokeColor : altThemeColor, fontWeight : "bold"}} variant="h6" >Set Money Per Game : </Typography>
+    <Box sx={{ display: "flex", flexDirection: "column" }}>
+      <Box sx={{ display: "flex", mt: "24px", ml: "12px", flexWrap: "wrap", height: "100px" }}>
+        <AttachMoneyIcon sx={{ width: "60px", height: "60px", mt: "-4px" }}></AttachMoneyIcon>
         <TextField size="small" sx={{
           "& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button": {
             display: "none",
           },
           "& input[type=number]": {
             MozAppearance: "textfield",
-          }, width : "60px", mt : "-4px", ml : "8px",
-        }}inputProps={{style: {fontSize: 30, paddingLeft : 0, paddingRight : 0, color : altThemeColor, fontWeight: "bold", textAlign : "center"}}}  type="number" value={matchAmount}  onChange={(e) => setMatchAmount(parseInt(e.target.value))}>{matchAmount}</TextField>
-        
-        <Button onClick={()=> (setSettingsOpen(!settingsOpen))} sx={{position : "absolute", right : 10, top : 10, background : themeColor, borderRadius : "15px", border : "2px solid white"}}>
-          <SettingsIcon sx={{width : "60px", height : "60px", color : altThemeColor}}/>
-        </Button>
+          }, width: "60px", mt: "-4px", ml: "8px"
+        }} inputProps={{ style: { fontSize: 30, paddingLeft: 0, paddingRight: 0, color: altThemeColor, fontWeight: "bold", textAlign: "center" } }} type="number" value={matchAmount} onChange={(e) => setMatchAmount(parseInt(e.target.value))}>{matchAmount}</TextField>
 
       </Box>
 
-      <Box sx={{position : "absolute", minHeight : settingsOpen ? "500px" : "0px", height : settingsOpen ? "500px" : "0px", width : "420px", background : themeColor, zIndex : 100, borderRadius : "15px", border : settingsOpen ? `3px solid ${altThemeColor}` : `0px solid ${altThemeColor}`, display : "flex", flexDirection : "column", overflow : "hidden", transition: "all 0.3s ease-out", right : 100}}>
-          <Box sx={{display : "flex"}}>
-            <Typography sx ={{fontWeight : "bold", fontSize : 24, WebkitTextStrokeWidth : "1px", WebkitTextStrokeColor : altThemeColor, ml : "24px", mt : "16px"}} variant="h6"> Theme </Typography>
-            <ThemeSwitch onChange={() => (themeSwitch())}  thememode={themeColor}></ThemeSwitch>
-          </Box>
+      <Button onClick={() => (setSettingsOpen(!settingsOpen))} sx={{ position: "absolute", right: 10, top: 10, background: themeColor, borderRadius: "15px", border: "2px solid white" }}>
+        <SettingsIcon sx={{ width: "60px", height: "60px", color: altThemeColor }} />
+      </Button>
 
-          <Box sx={{display : "flex"}}>
-            <Typography sx ={{fontWeight : "bold", fontSize : 24, WebkitTextStrokeWidth : "1px", WebkitTextStrokeColor : altThemeColor, ml : "24px", mt : "16px"}} variant="h6"> Randomize Characters </Typography>
-            <SimpleSwitch disable={false} checked={randomizeCharacters} onChange={() => (setRandomizeCharacters(!randomizeCharacters))} thememode={themeColor}></SimpleSwitch>
-          </Box>
+      <Box sx={{
+        position: "absolute", minHeight: settingsOpen ? "60%" : "0px", height: settingsOpen ? "70%" : "0px", width: "32%", minWidth:
+          "400px", background: themeColor, zIndex: 100, borderRadius: "15px", border: settingsOpen ? `3px solid ${altThemeColor}` : `0px solid ${altThemeColor}`, display: "flex", flexDirection: "column", overflow: "hidden", transition: "all 0.3s ease-out", right: 100
+      }}>
+        <Box sx={{ display: "flex" }}>
+          <Typography sx={{ fontWeight: "bold", fontSize: 24, WebkitTextStrokeWidth: "1px", WebkitTextStrokeColor: altThemeColor, ml: "24px", mt: "16px" }} variant="h6"> Theme </Typography>
+          <ThemeSwitch onChange={() => (themeSwitch())} thememode={themeColor}></ThemeSwitch>
+        </Box>
 
-          <Box sx={{display : "flex"}}>
-            <Typography sx ={{fontWeight : "bold", fontSize : 24, WebkitTextStrokeWidth : "1px", WebkitTextStrokeColor : altThemeColor, ml : "24px", mt : "24px"}} variant="h6"> Loading Time </Typography>
-            <MyToggleButton theme={themeColor} alignment={loadingTime} handleAlignment={changeLoadingTime}></MyToggleButton>
-          </Box> 
+        <Box sx={{ display: "flex" }}>
+          <Typography sx={{ fontWeight: "bold", fontSize: 24, WebkitTextStrokeWidth: "1px", WebkitTextStrokeColor: altThemeColor, ml: "24px", mt: "16px" }} variant="h6"> Randomize Characters </Typography>
+          <SimpleSwitch ml={"20px"} disable={false} checked={randomizeCharacters} onChange={() => (setRandomizeCharacters(!randomizeCharacters))} thememode={themeColor}></SimpleSwitch>
+        </Box>
 
-          <Box sx={{display : "flex", }}>
-            <Typography sx ={{fontWeight : "bold", fontSize : 24, WebkitTextStrokeWidth : "1px", WebkitTextStrokeColor : altThemeColor, ml : "24px", mt : "16px", opacity : 0}} variant="h6"> Extra Colors </Typography>
-            <SimpleSwitch disable={true} checked={includeExtraColors} onChange={() => (setIncludeExtraColors(!includeExtraColors))} thememode={themeColor}></SimpleSwitch>
-          </Box> 
+        <Box sx={{ display: "flex" }}>
+          <Typography sx={{ fontWeight: "bold", fontSize: 24, WebkitTextStrokeWidth: "1px", WebkitTextStrokeColor: altThemeColor, ml: "24px", mt: "24px" }} variant="h6"> Loading Time </Typography>
+          <MyToggleButton theme={themeColor} alignment={loadingTime} handleAlignment={changeLoadingTime}></MyToggleButton>
+        </Box>
 
-          
-          
+        <Box sx={{ display: "flex" }}>
+          <Typography sx={{ fontWeight: "bold", fontSize: 24, WebkitTextStrokeWidth: "1px", WebkitTextStrokeColor: altThemeColor, ml: "24px", mt: "16px" }} variant="h6"> Include Miis </Typography>
+          <SimpleSwitch ml={"144px"} disable={false} checked={includeMiis} onChange={() => (setIncludeMiis(!includeMiis))} thememode={themeColor}></SimpleSwitch>
+        </Box>
+
+        <Box sx={{ display: "flex", }}>
+          <Typography sx={{ fontWeight: "bold", fontSize: 24, WebkitTextStrokeWidth: "1px", WebkitTextStrokeColor: altThemeColor, ml: "24px", mt: "16px", opacity: 0 }} variant="h6"> Extra Colors </Typography>
+          <SimpleSwitch disable={true} checked={includeExtraColors} onChange={() => (setIncludeExtraColors(!includeExtraColors))} thememode={themeColor}></SimpleSwitch>
+        </Box>
+
+
+
       </Box>
 
 
-      <Button onClick={() => randomizeTeams()} sx={{borderColor : altThemeColor,  width: "200px", margin: "auto", height: "120px", marginTop : "-60px", marginBottom : "40px", background: "hsla(0, 85%, 55%, 1)",
+      <Button onClick={() => randomizeTeams()} sx={{
+        display: "flex", borderColor: altThemeColor, width: "12%", minWidth: "150px", margin: "auto", height: "120px", marginTop: "-100px", marginBottom: "40px", background: "hsla(0, 85%, 55%, 1)",
 
-      background: "linear-gradient(135deg, hsla(0, 85%, 55%, 1) 0%, hsla(214, 90%, 56%, 1) 100%)",
-      
-      background: "-moz-linear-gradient(135deg, hsla(0, 85%, 55%, 1) 0%, hsla(214, 90%, 56%, 1) 100%)",
-      
-      background: "-webkit-linear-gradient(135deg, hsla(0, 85%, 55%, 1) 0%, hsla(214, 90%, 56%, 1) 100%)",
-      
-      color : themeColor, borderWidth : "2px", borderStyle : "solid", borderColor: "black"}}>
-        <QuestionMarkIcon sx={{width : "80px", height : "80px"}}></QuestionMarkIcon>
+        background: "linear-gradient(135deg, hsla(0, 85%, 55%, 1) 0%, hsla(214, 90%, 56%, 1) 100%)",
+
+        background: "-moz-linear-gradient(135deg, hsla(0, 85%, 55%, 1) 0%, hsla(214, 90%, 56%, 1) 100%)",
+
+        background: "-webkit-linear-gradient(135deg, hsla(0, 85%, 55%, 1) 0%, hsla(214, 90%, 56%, 1) 100%)",
+
+        color: themeColor, borderWidth: "2px", borderStyle: "solid", borderColor: "black"
+      }}>
+        <QuestionMarkIcon sx={{ width: "80px", height: "80px" }}></QuestionMarkIcon>
       </Button>
 
 
-      <Box sx={{ display: "flex", justifyContent: "center" }}>
-        <PlayerDisplay playerName={playerOne} playerColor={playerColors[0]} 
-                       setPlayerName={setPlayerOne} playerTotal={total[0]}
-                       changeOneTotal={changeOneTotal} loading={loading} playerId={0}
-                       playerCharacter={playerCharacters[0]} randomizeCharacters={randomizeCharacters}
-                       />
+      <Box sx={{ display: "flex", justifyContent: "center", flexWrap: "wrap" }}>
 
-        <PlayerDisplay playerName={playerTwo} playerColor={playerColors[1]} 
-                       setPlayerName={setPlayerTwo} playerTotal={total[1]}
-                       changeOneTotal={changeOneTotal} loading={loading} playerId={1} 
-                       playerCharacter={playerCharacters[1]} randomizeCharacters={randomizeCharacters}/>
+        <Box sx={{ display: "flex" }}>
+          <PlayerDisplay playerName={playerOne} playerColor={playerColors[0]}
+            setPlayerName={setPlayerOne} playerTotal={total[0]}
+            changeOneTotal={changeOneTotal} loading={loading} playerId={0}
+            playerCharacter={playerCharacters[0]} randomizeCharacters={randomizeCharacters}
+          />
 
-        <PlayerDisplay playerName={playerThree} playerColor={playerColors[2]} 
-                       setPlayerName={setPlayerThree} playerTotal={total[2]}
-                       changeOneTotal={changeOneTotal} loading={loading} playerId={2} 
-                       playerCharacter={playerCharacters[2]} randomizeCharacters={randomizeCharacters}/>
+          <PlayerDisplay playerName={playerTwo} playerColor={playerColors[1]}
+            setPlayerName={setPlayerTwo} playerTotal={total[1]}
+            changeOneTotal={changeOneTotal} loading={loading} playerId={1}
+            playerCharacter={playerCharacters[1]} randomizeCharacters={randomizeCharacters} />
 
-        <PlayerDisplay playerName={playerFour} playerColor={playerColors[3]} 
-                       setPlayerName={setPlayerFour} playerTotal={total[3]}
-                       changeOneTotal={changeOneTotal} loading={loading} playerId={3}
-                       playerCharacter={playerCharacters[3]} randomizeCharacters={randomizeCharacters} />
+        </Box>
 
-        
+        <Box sx={{ display: "flex" }}>
+
+          <PlayerDisplay playerName={playerThree} playerColor={playerColors[2]}
+            setPlayerName={setPlayerThree} playerTotal={total[2]}
+            changeOneTotal={changeOneTotal} loading={loading} playerId={2}
+            playerCharacter={playerCharacters[2]} randomizeCharacters={randomizeCharacters} />
+
+          <PlayerDisplay playerName={playerFour} playerColor={playerColors[3]}
+            setPlayerName={setPlayerFour} playerTotal={total[3]}
+            changeOneTotal={changeOneTotal} loading={loading} playerId={3}
+            playerCharacter={playerCharacters[3]} randomizeCharacters={randomizeCharacters} />
 
 
-
+        </Box>
       </Box>
 
-      <Box sx={{ display: "flex", justifyContent: "center", mt : "32px", alignItems : "center", mb : "150px"}}>
+      <Box sx={{ display: "flex", justifyContent: "center", mt: "32px", alignItems: "center", mb: "150px" }}>
 
         <Button onClick={() => (updateTotal(red))} sx={{
           "&:hover": {
             backgroundColor: redTwo,
-          }, background: redOne, color: altThemeColor, width: "150px", height: "120px", mt: "16px", WebkitTextStrokeWidth : "1px", WebkitTextStrokeColor : altThemeColor, fontWeight : "bold", fontSize : 24, boxShadow : matchStatus == RED_WIN ? `0 0 100px ${red} ` : " "
+          }, background: redOne, color: altThemeColor, width: "160px", height: "120px", mt: "16px", WebkitTextStrokeWidth: "1px", WebkitTextStrokeColor: altThemeColor, fontWeight: "bold", fontSize: 24, boxShadow: matchStatus == RED_WIN ? `0 0 100px ${red} ` : " "
         }}>Red Win</Button>
 
-        <Typography sx={{width : "290px", minWidth : "200px", color: altThemeColor, WebkitTextStrokeWidth : "1px", WebkitTextStrokeColor : altThemeColor, fontWeight : "bold", textAlign : "center", paddingTop : "20px"}} fontSize={32}> GAME {history.length}</Typography>
+        <Typography sx={{ width: "290px", minWidth: "200px", color: altThemeColor, WebkitTextStrokeWidth: "1px", WebkitTextStrokeColor: altThemeColor, fontWeight: "bold", textAlign: "center", paddingTop: "20px" }} fontSize={32}> GAME {history.length}</Typography>
         <Button onClick={() => (updateTotal(blue))} sx={{
           "&:hover": {
             backgroundColor: blueTwo,
-          }, background: blueOne, color: altThemeColor, width: "150px", height: "120px", mt: "16px", WebkitTextStrokeWidth : "1px", WebkitTextStrokeColor : altThemeColor, fontWeight : "bold", fontSize : 24 , boxShadow : matchStatus == BLUE_WIN ? `0 0 100px ${blue} ` : " ", 
+          }, background: blueOne, color: altThemeColor, width: "160px", height: "120px", mt: "16px", WebkitTextStrokeWidth: "1px", WebkitTextStrokeColor: altThemeColor, fontWeight: "bold", fontSize: 24, boxShadow: matchStatus == BLUE_WIN ? `0 0 100px ${blue} ` : " ",
         }}>Blue Win</Button>
 
       </Box>
 
 
-      <Box> 
-        <Button onClick={() => (resetAll())} sx={{position : "absolute", color : altThemeColor, border: "solid", width : "200px", paddingBottom : "20px", paddingTop : "20px", bottom : 10, fontSize : 24, WebkitTextStrokeWidth : "1px", WebkitTextStrokeColor : altThemeColor, fontWeight : "bold",  background : themeColor}}>Reset All</Button>
+      <Box>
+        <Button onClick={() => (setConfirmResetOpen(true))} sx={{ position: "absolute", color: altThemeColor, border: "solid", minWidth: screenWidth > 900 ? "200px" : "50px", padding: screenWidth > 900 ? "20px 0px 20px 0px" : "20px 20px 20px 20px", bottom: 10, fontSize: 24, WebkitTextStrokeWidth: "1px", WebkitTextStrokeColor: altThemeColor, fontWeight: "bold", background: themeColor }}>
+          {screenWidth > 900 ? "Reset All" : <RestartAltIcon sx={{ width: "40px", height: "40px" }}></RestartAltIcon>}</Button>
       </Box>
 
 
-      <Box sx={{display : "flex", justifyContent : "center"}}>
-        <Button onClick={() => (undo())} sx={{position : "absolute", color : altThemeColor, border: "solid", minWidth : "200px", paddingBottom : "20px", paddingTop : "20px", bottom : 10, ml: "250px", fontSize : 24, WebkitTextStrokeWidth : "1px", WebkitTextStrokeColor : altThemeColor, fontWeight : "bold",  background : themeColor}}>Undo</Button>
-        <Button onClick={() => (setMatchHistoryOpen(true))} sx={{position : "absolute", color : altThemeColor, border: "solid", minWidth : "200px", paddingBottom : "20px", paddingTop : "20px", bottom : 10, mr: "250px", fontSize : 24, WebkitTextStrokeWidth : "1px", WebkitTextStrokeColor : altThemeColor, fontWeight : "bold", background : themeColor}}>Match History</Button>
-      </Box>    
-      
-      <MatchHistory characterHistory={characterHistory} background={themeColor} history={history} open={matchHistoryOpen} handleClose={handleMatchHistoryClose}/>
+      <Box sx={{ display: "flex", justifyContent: "center" }}>
+        <Button onClick={() => (undo())} sx={{ position: "absolute", color: altThemeColor, border: "solid", minWidth: screenWidth > 900 ? "200px" : "50px", padding: screenWidth > 900 ? "20px 0px 20px 0px" : "20px 20px 20px 20px", bottom: 10, ml: "25%", fontSize: 24, WebkitTextStrokeWidth: "1px", WebkitTextStrokeColor: altThemeColor, fontWeight: "bold", background: themeColor }}>
+          {screenWidth > 900 ? "Undo" : <UndoIcon sx={{ width: "40px", height: "40px" }}></UndoIcon>}
+        </Button>
+        <Button onClick={() => (setMatchHistoryOpen(true))} sx={{ position: "absolute", color: altThemeColor, border: "solid", minWidth: screenWidth > 900 ? "200px" : "50px", padding: screenWidth > 900 ? "20px 0px 20px 0px" : "20px 20px 20px 20px", bottom: 10, mr: "25%", fontSize: 24, WebkitTextStrokeWidth: "1px", WebkitTextStrokeColor: altThemeColor, fontWeight: "bold", background: themeColor }}>
+          {screenWidth > 900 ? "Match History" : <HistoryIcon sx={{ width: "40px", height: "40px" }}></HistoryIcon>}
+
+
+        </Button>
+      </Box>
+
+
+      <Link href="https://forms.gle/TmG5wPV442KwRhRe8" passHref={true}>
+      <Box>
+      <Button sx={{ position: "absolute", color: altThemeColor, border: "solid", minWidth: screenWidth > 900 ? "200px" : "50px", padding: screenWidth > 900 ? "20px 0px 20px 0px" : "20px 20px 20px 20px", bottom: 10, right: 10, fontSize: 24, WebkitTextStrokeWidth: "1px", WebkitTextStrokeColor: altThemeColor, fontWeight: "bold", background: themeColor }}>
+        {screenWidth > 900 ? "Feedback" : <FeedbackIcon sx={{ width: "40px", height: "40px" }}></FeedbackIcon>}</Button>
+    </Box>
+      </Link>
+
+      <MatchHistory characterHistory={characterHistory} background={themeColor} history={history} open={matchHistoryOpen} handleClose={handleMatchHistoryClose} />
+
+      <ConfirmationDialog open={confirmResetOpen} background={themeColor} handleClose={handleConfirmResetClose} onClick={confirmReset}></ConfirmationDialog>
 
     </Box>
   );
