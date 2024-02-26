@@ -2,10 +2,7 @@ import React from 'react'
 import { Container, Box } from '@mui/material'
 
 
-export const SmashPlayerBox = ({colors, loading}) => {
-
-  const transitionColors = ["#8c5690", "#9682a8", "#9ea8b8"]
-
+export const SmashPlayerBox = ({colors, loading, transitionColors}) => {
 
   return (
     <Container sx={{height:  "150px", width : "190px", overflow : "hidden", position : "relative", border: "solid", borderColor : "black"}}>

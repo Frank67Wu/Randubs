@@ -104,11 +104,17 @@ export default function Home() {
       setLoadingTime(localStorage.getItem("loadingTime") || 1)
       setIncludeMiis(localStorage.getItem("includeMiis") == "false" ? false : true)
       setCols([localStorage.getItem("colOne") || "RED", localStorage.getItem("colTwo") || "BLUE"])
-      
-      console.log(cols[1] == "RED")
 
-      setColorOne(cols[0] == "RED" ? reds : cols[0] == "BLUE" ? blues : cols[0] == "GREEN" ? greens : yellows)
-      setColorTwo(cols[1] == "RED" ? reds : cols[1] == "BLUE" ? blues : cols[1] == "GREEN" ? greens : yellows)
+      const c1 = localStorage.getItem("colOne") || "RED"
+      const c2 = localStorage.getItem("colTwo") || "BLUE"
+
+      const colOne = c1 == "RED" ? reds : c1 == "BLUE" ? blues : c1 == "GREEN" ? greens : yellows
+      const colTwo = c2 == "RED" ? reds : c2 == "BLUE" ? blues : c2 == "GREEN" ? greens : yellows
+
+      setColorOne(colOne)
+      setColorTwo(colTwo)
+
+      setPlayerColors([colOne[0], colOne[0], colTwo[0], colTwo[0]])
 
       document.body.style.background = localStorage.getItem("altTheme") == "black" ? "#FFF5EE" : "#343434"
       document.body.style.color = localStorage.getItem("altTheme") == "black" ? "black" : "white"
@@ -475,12 +481,14 @@ export default function Home() {
             setPlayerName={setPlayerOne} playerTotal={total[0]}
             changeOneTotal={changeOneTotal} loading={loading} playerId={0}
             playerCharacter={playerCharacters[0]} randomizeCharacters={randomizeCharacters}
+            otherColor={playerColors[0] == colorOne[0] ? colorTwo[0] : colorOne[0]}
           />
 
           <PlayerDisplay playerName={playerTwo} playerColor={playerColors[1]}
             setPlayerName={setPlayerTwo} playerTotal={total[1]}
             changeOneTotal={changeOneTotal} loading={loading} playerId={1}
-            playerCharacter={playerCharacters[1]} randomizeCharacters={randomizeCharacters} />
+            playerCharacter={playerCharacters[1]} randomizeCharacters={randomizeCharacters}
+            otherColor={playerColors[1] == colorOne[0] ? colorTwo[0] : colorOne[0]} />
 
         </Box>
 
@@ -489,12 +497,14 @@ export default function Home() {
           <PlayerDisplay playerName={playerThree} playerColor={playerColors[2]}
             setPlayerName={setPlayerThree} playerTotal={total[2]}
             changeOneTotal={changeOneTotal} loading={loading} playerId={2}
-            playerCharacter={playerCharacters[2]} randomizeCharacters={randomizeCharacters} />
+            playerCharacter={playerCharacters[2]} randomizeCharacters={randomizeCharacters}
+            otherColor={playerColors[2] == colorOne[0] ? colorTwo[0] : colorOne[0]} />
 
           <PlayerDisplay playerName={playerFour} playerColor={playerColors[3]}
             setPlayerName={setPlayerFour} playerTotal={total[3]}
             changeOneTotal={changeOneTotal} loading={loading} playerId={3}
-            playerCharacter={playerCharacters[3]} randomizeCharacters={randomizeCharacters} />
+            playerCharacter={playerCharacters[3]} randomizeCharacters={randomizeCharacters}
+            otherColor={playerColors[3] == colorOne[0] ? colorTwo[0] : colorOne[0]} />
 
 
         </Box>
