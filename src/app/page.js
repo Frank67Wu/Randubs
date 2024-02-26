@@ -17,6 +17,7 @@ import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import { ConfirmationDialog } from "./components/ConfirmationDialog";
 import FeedbackIcon from '@mui/icons-material/Feedback';
 import Link from 'next/link'; 
+import { ColorToggle } from "./components/ColorToggle";
 
 
 
@@ -24,27 +25,20 @@ import Link from 'next/link';
 export default function Home() {
 
   const IN_PROGRESS = "IN PROGRESS"
-  const BLUE_WIN = "BLUE_WIN"
-  const RED_WIN = "RED_WIN"
+  const COLOR_ONE_WIN = "COLOR_ONE_WIN"
+  const COLOR_TWO_WIN = "COLOR_TWO_WIN"
 
-  const red = "#EE2C2B"
-  const blue = "#2980F4"
-  const purple = "#FFD6D7"
-
-  const redOne = "#EE2C2B"
-  const redTwo = "#F3625A"
-  const redThree = "#f19d8c"
-
-  const blueOne = "#2980F4"
-  const blueTwo = "#39A2F6"
-  const blueThree = "#4AB2E3"
+  const reds = ["#EE2C2B", "#F3625A", "#E49080"]
+  const blues = ["#2980F4", "#39A2F6", "#4AB2E3"]
+  const yellows = ["#FEB810", "#FCD417", "#FBE218"]
+  const greens = ["#22AB42", "#35CD5F", "#43E47A"]
 
   const [playerOne, setPlayerOne] = useState("")
   const [playerTwo, setPlayerTwo] = useState("")
   const [playerThree, setPlayerThree] = useState("")
   const [playerFour, setPlayerFour] = useState("")
   const [matchAmount, setMatchAmount] = useState(1)
-  const [playerColors, setPlayerColors] = useState([red, red, blue, blue])
+
   const [total, setTotal] = useState(["", "", "", ""])
   const [loading, setLoading] = useState(false)
   const [cachingFinished, setCachingFinished] = useState(false)
@@ -54,6 +48,10 @@ export default function Home() {
   const [histColors, setHistColors] = useState([])
   const [loadingTime, setLoadingTime] = useState(1)
   const [includeMiis, setIncludeMiis] = useState(true)
+  const [cols, setCols] = useState(["RED", "BLUE"])
+  const [colorOne, setColorOne] = useState(reds)
+  const [colorTwo, setColorTwo] = useState(blues)
+  const [playerColors, setPlayerColors] = useState([colorOne[0], colorOne[0], colorTwo[0], colorTwo[0]])
 
   const [characterHistory, setCharacterHistory] = useState([])
   const [confirmResetOpen, setConfirmResetOpen] = useState(false)
@@ -105,6 +103,12 @@ export default function Home() {
       setRandomizeCharacters(localStorage.getItem("randomize") == "true" ? true : false)
       setLoadingTime(localStorage.getItem("loadingTime") || 1)
       setIncludeMiis(localStorage.getItem("includeMiis") == "false" ? false : true)
+      setCols([localStorage.getItem("colOne") || "RED", localStorage.getItem("colTwo") || "BLUE"])
+      
+      console.log(cols[1] == "RED")
+
+      setColorOne(cols[0] == "RED" ? reds : cols[0] == "BLUE" ? blues : cols[0] == "GREEN" ? greens : yellows)
+      setColorTwo(cols[1] == "RED" ? reds : cols[1] == "BLUE" ? blues : cols[1] == "GREEN" ? greens : yellows)
 
       document.body.style.background = localStorage.getItem("altTheme") == "black" ? "#FFF5EE" : "#343434"
       document.body.style.color = localStorage.getItem("altTheme") == "black" ? "black" : "white"
@@ -176,9 +180,25 @@ export default function Home() {
     }
   }, [includeMiis])
 
+  useEffect(() => {
+    if (cachingFinished) {
+      setColorOne(cols[0] == "RED" ? reds : cols[0] == "BLUE" ? blues : cols[0] == "GREEN" ? greens : yellows)
+      setColorTwo(cols[1] == "RED" ? reds : cols[1] == "BLUE" ? blues : cols[1] == "GREEN" ? greens : yellows)
+      localStorage.setItem("colOne", cols[0])
+      localStorage.setItem("colTwo", cols[1])
+    }
+  }, [cols])
+
   const changeLoadingTime = (e, newAlignment) => {
     setLoadingTime(newAlignment);
   };
+
+  const changeColors = (e, newAlignment) => {
+    if (newAlignment == cols[0] || newAlignment == cols[1]) {
+      return 0
+    }
+    setCols((prev) => ([prev[1] , newAlignment]))
+  }
 
   const randomizeTeams = () => {
 
@@ -188,13 +208,13 @@ export default function Home() {
       randomizeChars()
     }
 
-    let colors = [red, red, red, red]
+    let colors = [colorOne[0], colorOne[0], colorOne[0], colorOne[0]]
 
     let indexOne = Math.floor(Math.random() * (4))
     let indexTwo = (Math.floor(Math.random() * (3)) + 1 + indexOne) % 4
 
-    colors[indexOne] = blue
-    colors[indexTwo] = blue
+    colors[indexOne] = colorTwo[0]
+    colors[indexTwo] = colorTwo[0]
 
     setPlayerColors(colors)
 
@@ -217,11 +237,11 @@ export default function Home() {
     if (loading) {
       return 0
     }
-    if (winner == red) {
-      setMatchStatus(RED_WIN)
+    if (winner == colorOne[0]) {
+      setMatchStatus(COLOR_ONE_WIN)
     }
     else {
-      setMatchStatus(BLUE_WIN)
+      setMatchStatus(COLOR_TWO_WIN)
     }
     const players = [playerOne, playerTwo, playerThree, playerFour]
     let chars = []
@@ -240,7 +260,7 @@ export default function Home() {
         alt[i] = 0
       }
 
-      if (playerColors[i] == red) {
+      if (playerColors[i] == colorOne[0]) {
         hist.unshift(players[i])
       }
       else {
@@ -248,7 +268,7 @@ export default function Home() {
       }
     }
 
-    if (winner == red) {
+    if (winner == colorOne[0]) {
       hist.push(0)
     }
     else {
@@ -369,17 +389,19 @@ export default function Home() {
     }
   }
 
+
+
   return (
     <Box sx={{ display: "flex", flexDirection: "column" }}>
-      <Box sx={{ display: "flex", mt: "24px", ml: "4px", flexWrap: "wrap", height: "100px" }}>
-        <AttachMoneyIcon sx={{ width: screenWidth > 900 ? "60px" : "30px", height: screenWidth > 900 ? "60px" : "30px", mt: "-4px", mt : screenWidth > 900 ? 0 : "10px" }}></AttachMoneyIcon>
+      <Box sx={{ display: "flex", ml: "4px", flexWrap: "wrap", height: "100px" }}>
+        <AttachMoneyIcon sx={{ width: "60px", height: "60px" , mt: "-4px", mt : "10px" }}></AttachMoneyIcon>
         <TextField size="small" sx={{
           "& input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button": {
             display: "none",
           },
           "& input[type=number]": {
             MozAppearance: "textfield",
-          }, width: "60px", mt: "-4px", ml: "8px"
+          }, width: "60px", ml: "8px", mt : "12px"
         }} inputProps={{ style: { fontSize: 30, paddingLeft: 0, paddingRight: 0, color: altThemeColor, fontWeight: "bold", textAlign: "center" } }} type="number" value={matchAmount} onChange={(e) => setMatchAmount(parseInt(e.target.value))}>{matchAmount}</TextField>
 
       </Box>
@@ -389,8 +411,8 @@ export default function Home() {
       </Button>
 
       <Box sx={{
-        position: "absolute", minHeight: settingsOpen ? "60%" : "0px", height: settingsOpen ? "70%" : "0px", width: "32%", minWidth:
-          "400px", background: themeColor, zIndex: 100, borderRadius: "15px", border: settingsOpen ? `3px solid ${altThemeColor}` : `0px solid ${altThemeColor}`, display: "flex", flexDirection: "column", overflow: "hidden", transition: "all 0.3s ease-out", right: 0
+        position: "absolute", minHeight: settingsOpen ? "60%" : "0px", height: settingsOpen ? "70%" : "0px", width: "420px", minWidth:
+          "400px", background: themeColor, zIndex: 100, borderRadius: "15px", border: settingsOpen ? `3px solid ${altThemeColor}` : `0px solid ${altThemeColor}`, display: "flex", flexDirection: "column", overflow: "hidden", transition: "all 0.3s ease-out", right: 0,
       }}>
 
         <Box sx={{ display: "flex", mb : "16px" }}>
@@ -414,6 +436,11 @@ export default function Home() {
         <Box sx={{ display: "flex" }}>
           <Typography sx={{ fontWeight: "bold", fontSize: 24, WebkitTextStrokeWidth: "1px", WebkitTextStrokeColor: altThemeColor, ml: "24px", mt: "16px" }} variant="h6"> Include Miis </Typography>
           <SimpleSwitch ml={"144px"} disable={false} checked={includeMiis} onChange={() => (setIncludeMiis(!includeMiis))} thememode={themeColor}></SimpleSwitch>
+        </Box>
+
+        <Box sx={{ display: "flex" }}>
+          <Typography sx={{ fontWeight: "bold", fontSize: 24, WebkitTextStrokeWidth: "1px", WebkitTextStrokeColor: altThemeColor, ml: "24px", mt: "24px" }} variant="h6"> Colors </Typography>
+          <ColorToggle theme={themeColor} alignment={cols} handleAlignment={changeColors}></ColorToggle>
         </Box>
 
         <Box sx={{ display: "flex", }}>
@@ -475,18 +502,19 @@ export default function Home() {
 
       <Box sx={{ display: "flex", justifyContent: "center", mt: "32px", alignItems: "center", mb: "150px" }}>
 
-        <Button onClick={() => (updateTotal(red))} sx={{
+        <Button onClick={() => (updateTotal(colorOne[0]))} sx={{
           "&:hover": {
-            backgroundColor: redTwo,
-          }, background: redOne, color: altThemeColor, width: "160px", height: "120px", mt: "16px", WebkitTextStrokeWidth: "1px", WebkitTextStrokeColor: altThemeColor, fontWeight: "bold", fontSize: 24, boxShadow: matchStatus == RED_WIN ? `0 0 100px ${red} ` : " "
-        }}>Red Win</Button>
+            backgroundColor: colorOne[1],
+          }, background: colorOne[0], color: altThemeColor, width: "160px", height: "120px", mt: "16px", WebkitTextStrokeWidth: "1px", WebkitTextStrokeColor: altThemeColor, fontWeight: "bold", fontSize: 24, boxShadow: matchStatus == COLOR_ONE_WIN ? `0 0 100px ${colorOne[0]} ` : " "
+        }}>{cols[0]} Win</Button>
 
         <Typography sx={{ width: "200px", minWidth: "200px", color: altThemeColor, WebkitTextStrokeWidth: "1px", WebkitTextStrokeColor: altThemeColor, fontWeight: "bold", textAlign: "center", paddingTop: "20px" }} fontSize={32}> GAME {history.length}</Typography>
-        <Button onClick={() => (updateTotal(blue))} sx={{
+
+        <Button onClick={() => (updateTotal(colorTwo[0]))} sx={{
           "&:hover": {
-            backgroundColor: blueTwo,
-          }, background: blueOne, color: altThemeColor, width: "160px", height: "120px", mt: "16px", WebkitTextStrokeWidth: "1px", WebkitTextStrokeColor: altThemeColor, fontWeight: "bold", fontSize: 24, boxShadow: matchStatus == BLUE_WIN ? `0 0 100px ${blue} ` : " ",
-        }}>Blue Win</Button>
+            backgroundColor: colorTwo[1],
+          }, background: colorTwo[0], color: altThemeColor, width: "160px", height: "120px", mt: "16px", WebkitTextStrokeWidth: "1px", WebkitTextStrokeColor: altThemeColor, fontWeight: "bold", fontSize: 24, boxShadow: matchStatus == COLOR_TWO_WIN ? `0 0 100px ${colorTwo[0]} ` : " ",
+        }}>{cols[1]} Win</Button>
 
       </Box>
 

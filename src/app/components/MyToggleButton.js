@@ -12,7 +12,7 @@ export const MyToggleButton = ({alignment, handleAlignment, theme}) => {
   const color = theme == "black" ? "white" : "black"
 
   const style = {fontSize : 32, WebkitTextStrokeWidth : "1px", WebkitTextStrokeColor : "black", color : "black", mt : "-10px", mb : "-10px"}
-  const padding = {paddingLeft : "4px", paddingRight : "4px"}
+  const padding = {paddingLeft : "4.5px", paddingRight : "4.5px"}
   const toggleStyle = {minWidth : "38px"}
 
   return (
