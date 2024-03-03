@@ -250,7 +250,6 @@ export default function Home() {
     let newTotal = []
     let histCol = []
     for (let i = 0; i < 4; i++) {
-      chars.push(playerCharacters[i])
       if (playerColors[i] == winner) {
         newTotal.push(parseInt(total[i]) + parseInt(matchAmount))
         alt[i] = 1
@@ -262,8 +261,10 @@ export default function Home() {
 
       if (playerColors[i] == colorOne[0]) {
         hist.unshift(players[i])
+        chars.unshift(playerCharacters[i])
       }
       else {
+        chars.push(playerCharacters[i])
         hist.push(players[i])
       }
     }
