@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "server": "node server"
   },
   "dependencies": {
     "@emotion/react": "^11.11.3",
@@ -14,10 +15,13 @@
     "@mui/icons-material": "^5.15.10",
     "@mui/material": "^5.15.10",
     "@vercel/analytics": "^1.2.2",
+    "express": "^4.18.3",
     "next": "14.1.0",
+    "next-connect": "^1.0.0-next.4",
     "react": "^18",
     "react-dom": "^18",
-    "socket.io": "^4.7.4"
+    "socket.io": "^4.7.4",
+    "socket.io-client": "^4.7.4"
   },
   "devDependencies": {
     "autoprefixer": "^10.0.1",
