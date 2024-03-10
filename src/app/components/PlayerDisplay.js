@@ -27,7 +27,7 @@ export const PlayerDisplay = ({playerColor, playerName, setPlayerName, playerTot
               width : "200px", height : "40px"
             }}
             value={playerName}
-            onChange={(e) => (setPlayerName(e.target.value))}
+            onChange={(e) => (setPlayerName(playerId, e.target.value))}
             InputProps={{disableUnderline : true, 
               inputProps: {
                 style: { textAlign: "center", fontSize : 24, color : "white", outlineColor : "black", WebkitTextStrokeWidth : "1px", WebkitTextStrokeColor : "white", fontWeight : "bold", marginTop : "-2px"},

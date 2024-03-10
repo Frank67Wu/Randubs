@@ -1,7 +1,7 @@
 'use client'
 
 import { Box, TextField, Typography, Button, Container, ToggleButton } from "@mui/material";
-import { useState, useEffect, useLayoutEffect } from "react";
+import { useState, useEffect, useLayoutEffect, useContext } from "react";
 import QuestionMarkIcon from '@mui/icons-material/QuestionMark';
 import { MatchHistory } from "./components/MatchHistory";
 import { PlayerDisplay } from "./components/PlayerDisplay";
@@ -18,8 +18,7 @@ import { ConfirmationDialog } from "./components/ConfirmationDialog";
 import FeedbackIcon from '@mui/icons-material/Feedback';
 import Link from 'next/link'; 
 import { ColorToggle } from "./components/ColorToggle";
-
-
+import { io } from "socket.io-client";
 
 
 export default function Home() {
@@ -33,10 +32,7 @@ export default function Home() {
   const yellows = ["#FEB810", "#FCD417", "#FBE218"]
   const greens = ["#22AB42", "#35CD5F", "#43E47A"]
 
-  const [playerOne, setPlayerOne] = useState("")
-  const [playerTwo, setPlayerTwo] = useState("")
-  const [playerThree, setPlayerThree] = useState("")
-  const [playerFour, setPlayerFour] = useState("")
+  const [playerNames, setPlayerNames] = useState(["Player One", "Player Two", "Player Three", "Player Four"])
   const [matchAmount, setMatchAmount] = useState(1)
 
   const [total, setTotal] = useState(["", "", "", ""])
@@ -67,6 +63,34 @@ export default function Home() {
   const [matchHistoryOpen, setMatchHistoryOpen] = useState(false)
   const [playerCharacters, setPlayerCharacters] = useState(["", "", "", ""])
 
+  const [roomCode, setRoomCode] = useState("")
+
+  const socket = io('http://18.119.165.24:80')
+
+  useEffect(() => {
+    
+    socket.emit("create room")
+
+    socket.on("create room", (roomName) => {
+      setRoomCode(roomName)
+    })
+
+  }, [])
+
+  useEffect(() => {
+    if (cachingFinished) {
+      socket.on("get info", (id) => {
+        console.log("requesting")
+        socket.emit("post info", [id, {colors : playerColors, names : playerNames, amount : matchAmount, randomize : randomizeCharacters, tot: total, chars : playerCharacters, hist : history}])
+      })
+    }
+  })
+
+  useEffect(() => {
+    if (cachingFinished) {
+      socket.emit("randomize colors", playerColors)
+    }
+  }, [playerColors])
 
   function useWindowSize() {
     const [size, setSize] = useState([0, 0]);
@@ -104,8 +128,7 @@ export default function Home() {
       setLoadingTime(localStorage.getItem("loadingTime") || 1)
       setIncludeMiis(localStorage.getItem("includeMiis") == "false" ? false : true)
       setCols([localStorage.getItem("colOne") || "RED", localStorage.getItem("colTwo") || "BLUE"])
-      
-      console.log(cols[1] == "RED")
+    
 
       setColorOne(cols[0] == "RED" ? reds : cols[0] == "BLUE" ? blues : cols[0] == "GREEN" ? greens : yellows)
       setColorTwo(cols[1] == "RED" ? reds : cols[1] == "BLUE" ? blues : cols[1] == "GREEN" ? greens : yellows)
@@ -116,10 +139,10 @@ export default function Home() {
 
       setTotal([prev1, prev2, prev3, prev4])
 
-      setPlayerOne(localStorage.getItem("p1") || "Player One")
-      setPlayerTwo(localStorage.getItem("p2") || "Player Two")
-      setPlayerThree(localStorage.getItem("p3") || "Player Three")
-      setPlayerFour(localStorage.getItem("p4") || "Player Four")
+      setPlayerNames([localStorage.getItem("p1") || "Player One", 
+                      localStorage.getItem("p2") || "Player Two",
+                      localStorage.getItem("p3") || "Player Three",
+                      localStorage.getItem("p4") || "Player Four"])
 
       if (!isNaN(localStorage.getItem("matchAmount"))) {
         setMatchAmount(1)
@@ -133,12 +156,14 @@ export default function Home() {
 
   useEffect(() => {
     if (cachingFinished) {
-      localStorage.setItem("p1", playerOne)
-      localStorage.setItem("p2", playerTwo)
-      localStorage.setItem("p3", playerThree)
-      localStorage.setItem("p4", playerFour)
+      localStorage.setItem("p1", playerNames[0])
+      localStorage.setItem("p2", playerNames[1])
+      localStorage.setItem("p3", playerNames[2])
+      localStorage.setItem("p4", playerNames[3])
+
+      socket.emit("change name", playerNames)
     }
-  }, [playerOne, playerTwo, playerThree, playerFour])
+  }, [playerNames])
 
   useEffect(() => {
     if (cachingFinished) {
@@ -146,26 +171,42 @@ export default function Home() {
       localStorage.setItem("p2total", total[1])
       localStorage.setItem("p3total", total[2])
       localStorage.setItem("p4total", total[3])
+
+      socket.emit("change total", total)
     }
   }, [total])
 
   useEffect(() => {
     if (cachingFinished) {
       localStorage.setItem("matchAmount", matchAmount)
+      
+      socket.emit("change amount", matchAmount)
     }
   }, [matchAmount])
 
   useEffect(() => {
     if (cachingFinished) {
       localStorage.setItem("randomize", randomizeCharacters)
+
+      socket.emit("randomize characters", randomizeCharacters)
     }
   }, [randomizeCharacters])
 
   useEffect(() => {
     if (cachingFinished) {
       localStorage.setItem("loadingTime", loadingTime)
+      socket.emit("change loading time", loadingTime)
     }
   }, [loadingTime])
+
+  useEffect(() => {
+    socket.emit("change characters", (playerCharacters))
+  }, [playerCharacters])
+
+  useEffect(() => {
+    socket.emit("change history", [history, characterHistory])
+  }, [history])
+
 
   useEffect(() => {
     if (cachingFinished) {
@@ -189,6 +230,19 @@ export default function Home() {
     }
   }, [cols])
 
+  const changePlayerName = (id, newName) => {
+    const prevNames = []
+    for (let i = 0; i < 4; i++) {
+      if (id === i) {
+        prevNames.push(newName)
+      }
+      else {
+        prevNames.push(playerNames[i])
+      }
+    }
+    setPlayerNames(prevNames) 
+  }
+
   const changeLoadingTime = (e, newAlignment) => {
     setLoadingTime(newAlignment);
   };
@@ -199,6 +253,10 @@ export default function Home() {
     }
     setCols((prev) => ([prev[1] , newAlignment]))
   }
+
+  useEffect(() => {
+    socket.emit("change loading", loading)
+  }, [loading])
 
   const randomizeTeams = () => {
 
@@ -243,7 +301,7 @@ export default function Home() {
     else {
       setMatchStatus(COLOR_TWO_WIN)
     }
-    const players = [playerOne, playerTwo, playerThree, playerFour]
+
     let chars = []
     let hist = []
     let alt = []
@@ -260,12 +318,12 @@ export default function Home() {
       }
 
       if (playerColors[i] == colorOne[0]) {
-        hist.unshift(players[i])
+        hist.unshift(playerNames[i])
         chars.unshift(playerCharacters[i])
       }
       else {
         chars.push(playerCharacters[i])
-        hist.push(players[i])
+        hist.push(playerNames[i])
       }
     }
 
@@ -337,6 +395,8 @@ export default function Home() {
       setHistAlt((prev) => (prev.slice(0, -1)))
     }
   }
+
+  
 
   const themeSwitch = () => {
     document.body.style.background = themeColor == "black" ? "#FAF9F6" : "#343434"
@@ -472,14 +532,14 @@ export default function Home() {
       <Box sx={{ display: "flex", justifyContent: "center", flexWrap: "wrap" }}>
 
         <Box sx={{ display: "flex" }}>
-          <PlayerDisplay playerName={playerOne} playerColor={playerColors[0]}
-            setPlayerName={setPlayerOne} playerTotal={total[0]}
+          <PlayerDisplay playerName={playerNames[0]} playerColor={playerColors[0]}
+            setPlayerName={changePlayerName} playerTotal={total[0]}
             changeOneTotal={changeOneTotal} loading={loading} playerId={0}
             playerCharacter={playerCharacters[0]} randomizeCharacters={randomizeCharacters}
           />
 
-          <PlayerDisplay playerName={playerTwo} playerColor={playerColors[1]}
-            setPlayerName={setPlayerTwo} playerTotal={total[1]}
+          <PlayerDisplay playerName={playerNames[1]} playerColor={playerColors[1]}
+            setPlayerName={changePlayerName} playerTotal={total[1]}
             changeOneTotal={changeOneTotal} loading={loading} playerId={1}
             playerCharacter={playerCharacters[1]} randomizeCharacters={randomizeCharacters} />
 
@@ -487,13 +547,13 @@ export default function Home() {
 
         <Box sx={{ display: "flex" }}>
 
-          <PlayerDisplay playerName={playerThree} playerColor={playerColors[2]}
-            setPlayerName={setPlayerThree} playerTotal={total[2]}
+          <PlayerDisplay playerName={playerNames[2]} playerColor={playerColors[2]}
+            setPlayerName={changePlayerName} playerTotal={total[2]}
             changeOneTotal={changeOneTotal} loading={loading} playerId={2}
             playerCharacter={playerCharacters[2]} randomizeCharacters={randomizeCharacters} />
 
-          <PlayerDisplay playerName={playerFour} playerColor={playerColors[3]}
-            setPlayerName={setPlayerFour} playerTotal={total[3]}
+          <PlayerDisplay playerName={playerNames[3]} playerColor={playerColors[3]}
+            setPlayerName={changePlayerName} playerTotal={total[3]}
             changeOneTotal={changeOneTotal} loading={loading} playerId={3}
             playerCharacter={playerCharacters[3]} randomizeCharacters={randomizeCharacters} />
 
