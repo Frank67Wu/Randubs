@@ -14,11 +14,14 @@ import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import UndoIcon from '@mui/icons-material/Undo';
 import HistoryIcon from '@mui/icons-material/History';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
+import LoopIcon from '@mui/icons-material/Loop';
 import { ConfirmationDialog } from "./components/ConfirmationDialog";
 import FeedbackIcon from '@mui/icons-material/Feedback';
 import Link from 'next/link'; 
 import { ColorToggle } from "./components/ColorToggle";
 import { io } from "socket.io-client";
+import { GameSummary } from "./components/GameSummary";
+import SummarizeIcon from '@mui/icons-material/Summarize';
 
 
 export default function Home() {
@@ -48,6 +51,8 @@ export default function Home() {
   const [colorOne, setColorOne] = useState(reds)
   const [colorTwo, setColorTwo] = useState(blues)
   const [playerColors, setPlayerColors] = useState([colorOne[0], colorOne[0], colorTwo[0], colorTwo[0]])
+  const [cycleTeams, setCycleTeams] = useState(false)
+  const [gameSummaryOpen, setGameSummaryOpen] = useState(false)
 
   const [characterHistory, setCharacterHistory] = useState([])
   const [confirmResetOpen, setConfirmResetOpen] = useState(false)
@@ -65,32 +70,32 @@ export default function Home() {
 
   const [roomCode, setRoomCode] = useState("")
 
-  const socket = io('http://18.119.165.24:80')
+  //const socket = io('http://18.119.165.24:80')
 
-  useEffect(() => {
+  // useEffect(() => {
     
-    socket.emit("create room")
+  //   socket.emit("create room")
 
-    socket.on("create room", (roomName) => {
-      setRoomCode(roomName)
-    })
+  //   socket.on("create room", (roomName) => {
+  //     setRoomCode(roomName)
+  //   })
 
-  }, [])
+  // }, [])
 
-  useEffect(() => {
-    if (cachingFinished) {
-      socket.on("get info", (id) => {
-        console.log("requesting")
-        socket.emit("post info", [id, {colors : playerColors, names : playerNames, amount : matchAmount, randomize : randomizeCharacters, tot: total, chars : playerCharacters, hist : history}])
-      })
-    }
-  })
+  // useEffect(() => {
+  //   if (cachingFinished) {
+  //     socket.on("get info", (id) => {
+  //       console.log("requesting")
+  //       socket.emit("post info", [id, {colors : playerColors, names : playerNames, amount : matchAmount, randomize : randomizeCharacters, tot: total, chars : playerCharacters, hist : history}])
+  //     })
+  //   }
+  // })
 
-  useEffect(() => {
-    if (cachingFinished) {
-      socket.emit("randomize colors", playerColors)
-    }
-  }, [playerColors])
+  // useEffect(() => {
+  //   if (cachingFinished) {
+  //     socket.emit("randomize colors", playerColors)
+  //   }
+  // }, [playerColors])
 
   function useWindowSize() {
     const [size, setSize] = useState([0, 0]);
@@ -111,6 +116,10 @@ export default function Home() {
     setMatchHistoryOpen(false)
   }
 
+  const handleGameSummaryClose = () => {
+    setGameSummaryOpen(false)
+  }
+
   const handleConfirmResetClose = () => {
     setConfirmResetOpen(false)
   }
@@ -125,9 +134,10 @@ export default function Home() {
       setThemeColor(localStorage.getItem("theme") || "black")
       setAltThemeColor(localStorage.getItem("altTheme") || "white")
       setRandomizeCharacters(localStorage.getItem("randomize") == "true" ? true : false)
-      setLoadingTime(localStorage.getItem("loadingTime") || 1)
+      setLoadingTime(parseFloat(localStorage.getItem("loadingTime")) || 1)
       setIncludeMiis(localStorage.getItem("includeMiis") == "false" ? false : true)
       setCols([localStorage.getItem("colOne") || "RED", localStorage.getItem("colTwo") || "BLUE"])
+      setCycleTeams(localStorage.getItem("cycleTeams") == "true" ? true : false)
     
 
       setColorOne(cols[0] == "RED" ? reds : cols[0] == "BLUE" ? blues : cols[0] == "GREEN" ? greens : yellows)
@@ -161,9 +171,15 @@ export default function Home() {
       localStorage.setItem("p3", playerNames[2])
       localStorage.setItem("p4", playerNames[3])
 
-      socket.emit("change name", playerNames)
+      //socket.emit("change name", playerNames)
     }
   }, [playerNames])
+
+  useEffect(() => {
+    if (cachingFinished) {
+      localStorage.setItem("cycleTeams", cycleTeams)
+    }
+  }, [cycleTeams])
 
   useEffect(() => {
     if (cachingFinished) {
@@ -172,7 +188,7 @@ export default function Home() {
       localStorage.setItem("p3total", total[2])
       localStorage.setItem("p4total", total[3])
 
-      socket.emit("change total", total)
+      //socket.emit("change total", total)
     }
   }, [total])
 
@@ -180,7 +196,7 @@ export default function Home() {
     if (cachingFinished) {
       localStorage.setItem("matchAmount", matchAmount)
       
-      socket.emit("change amount", matchAmount)
+      //socket.emit("change amount", matchAmount)
     }
   }, [matchAmount])
 
@@ -188,24 +204,24 @@ export default function Home() {
     if (cachingFinished) {
       localStorage.setItem("randomize", randomizeCharacters)
 
-      socket.emit("randomize characters", randomizeCharacters)
+      //socket.emit("randomize characters", randomizeCharacters)
     }
   }, [randomizeCharacters])
 
   useEffect(() => {
     if (cachingFinished) {
       localStorage.setItem("loadingTime", loadingTime)
-      socket.emit("change loading time", loadingTime)
+      //socket.emit("change loading time", loadingTime)
     }
   }, [loadingTime])
 
-  useEffect(() => {
-    socket.emit("change characters", (playerCharacters))
-  }, [playerCharacters])
+  // useEffect(() => {
+  //   socket.emit("change characters", (playerCharacters))
+  // }, [playerCharacters])
 
-  useEffect(() => {
-    socket.emit("change history", [history, characterHistory])
-  }, [history])
+  // useEffect(() => {
+  //   socket.emit("change history", [history, characterHistory])
+  // }, [history])
 
 
   useEffect(() => {
@@ -254,9 +270,56 @@ export default function Home() {
     setCols((prev) => ([prev[1] , newAlignment]))
   }
 
-  useEffect(() => {
-    socket.emit("change loading", loading)
-  }, [loading])
+  // useEffect(() => {
+  //   socket.emit("change loading", loading)
+  // }, [loading])
+
+  const sameArray = (array1, array2) => {
+    if (array1.length != array2.length) {
+      return false
+    }
+    for (let i = 0; i < array1.length; i++) {
+      if (array1[i] !== array2[i]) {
+        return false
+      }
+    }
+
+    return true
+  }
+
+  const cycleTeamsFunction = () => {
+    setLoading(true)
+
+    if (randomizeCharacters) {
+      randomizeChars()
+    }
+
+    const possibleCycles = [[colorOne[0], colorOne[0], colorTwo[0], colorTwo[0]], [colorOne[0], colorTwo[0], colorOne[0], colorTwo[0]],         [colorOne[0], colorTwo[0], colorTwo[0], colorOne[0]], [colorTwo[0], colorTwo[0], colorOne[0], colorOne[0]], [colorTwo[0], colorOne[0], colorTwo[0], colorOne[0]], [colorTwo[0], colorOne[0], colorOne[0], colorTwo[0]]]
+
+    for (let i = 0; i < 5; i++) {
+      if (sameArray(playerColors, possibleCycles[i])) {
+        setPlayerColors(possibleCycles[i + 1])
+        setMatchStatus(IN_PROGRESS)
+
+        const lt = loadingTime || 1
+    
+        setTimeout(() => {
+          setLoading(false)
+        }, lt * 1000);
+        return 
+      }
+    }
+
+    setPlayerColors(possibleCycles[0])
+    setMatchStatus(IN_PROGRESS)
+
+    const lt = loadingTime || 1
+
+    setTimeout(() => {
+      setLoading(false)
+    }, lt * 1000);
+    return 
+  }
 
   const randomizeTeams = () => {
 
@@ -342,6 +405,7 @@ export default function Home() {
     }
 
     setHistory((oldhist) => [...oldhist, hist])
+    console.log(history)
     setCharacterHistory((prev) => [...prev, chars])
     setTotal(newTotal)
     setHistAlt((oldAlt) => [...oldAlt, alt])
@@ -485,7 +549,7 @@ export default function Home() {
         </Box>
 
         <Box sx={{ display: "flex" }}>
-          <Typography sx={{ fontWeight: "bold", fontSize: 24, WebkitTextStrokeWidth: "1px", WebkitTextStrokeColor: altThemeColor, ml: "24px", mt: "16px" }} variant="h6"> Randomize Characters </Typography>
+          <Typography sx={{ fontWeight: "bold", fontSize: 24, WebkitTextStrokeWidth: "1px", WebkitTextStrokeColor: altThemeColor, ml: "24px", mt: "28px" }} variant="h6"> Randomize Characters </Typography>
           <SimpleSwitch ml={"20px"} disable={false} checked={randomizeCharacters} onChange={() => (setRandomizeCharacters(!randomizeCharacters))} thememode={themeColor}></SimpleSwitch>
         </Box>
 
@@ -495,7 +559,7 @@ export default function Home() {
         </Box>
 
         <Box sx={{ display: "flex" }}>
-          <Typography sx={{ fontWeight: "bold", fontSize: 24, WebkitTextStrokeWidth: "1px", WebkitTextStrokeColor: altThemeColor, ml: "24px", mt: "16px" }} variant="h6"> Include Miis </Typography>
+          <Typography sx={{ fontWeight: "bold", fontSize: 24, WebkitTextStrokeWidth: "1px", WebkitTextStrokeColor: altThemeColor, ml: "24px", mt: "28px" }} variant="h6"> Include Miis </Typography>
           <SimpleSwitch ml={"144px"} disable={false} checked={includeMiis} onChange={() => (setIncludeMiis(!includeMiis))} thememode={themeColor}></SimpleSwitch>
         </Box>
 
@@ -504,17 +568,17 @@ export default function Home() {
           <ColorToggle theme={themeColor} alignment={cols} handleAlignment={changeColors}></ColorToggle>
         </Box>
 
-        <Box sx={{ display: "flex", }}>
-          <Typography sx={{ fontWeight: "bold", fontSize: 24, WebkitTextStrokeWidth: "1px", WebkitTextStrokeColor: altThemeColor, ml: "24px", mt: "16px", opacity: 0 }} variant="h6"> Extra Colors </Typography>
-          <SimpleSwitch disable={true} checked={includeExtraColors} onChange={() => (setIncludeExtraColors(!includeExtraColors))} thememode={themeColor}></SimpleSwitch>
-        </Box>
+        <Box sx={{ display: "flex" }}>
+        <Typography sx={{ fontWeight: "bold", fontSize: 24, WebkitTextStrokeWidth: "1px", WebkitTextStrokeColor: altThemeColor, ml: "24px", mt: "28px" }} variant="h6"> Cycle Teams </Typography>
+        <SimpleSwitch ml={"144px"} disable={false} checked={cycleTeams} onChange={() => (setCycleTeams(!cycleTeams))} thememode={themeColor}></SimpleSwitch>
+      </Box>
 
 
 
       </Box>
 
 
-      <Button onClick={() => randomizeTeams()} sx={{
+      <Button onClick={() => (cycleTeams ? cycleTeamsFunction() : randomizeTeams())} sx={{
         display: "flex", borderColor: altThemeColor, width: "12%", minWidth: "150px", margin: "auto", height: "120px", marginTop: "-100px", marginBottom: "40px", background: "hsla(0, 85%, 55%, 1)",
 
         background: "linear-gradient(135deg, hsla(0, 85%, 55%, 1) 0%, hsla(214, 90%, 56%, 1) 100%)",
@@ -525,7 +589,9 @@ export default function Home() {
 
         color: themeColor, borderWidth: "2px", borderStyle: "solid", borderColor: "black"
       }}>
-        <QuestionMarkIcon sx={{ width: "80px", height: "80px" }}></QuestionMarkIcon>
+        {cycleTeams ? 
+          <LoopIcon sx={{ width: "80px", height: "80px" }}/> :
+          <QuestionMarkIcon sx={{ width: "80px", height: "80px" }}></QuestionMarkIcon>}
       </Button>
 
 
@@ -598,16 +664,18 @@ export default function Home() {
       </Box>
 
 
-      <Link href="https://forms.gle/TmG5wPV442KwRhRe8" passHref={true}>
+
       <Box>
-      <Button sx={{ position: "absolute", color: altThemeColor, border: "solid", minWidth: screenWidth > 900 ? "200px" : "50px", padding: screenWidth > 900 ? "20px 0px 20px 0px" : "20px 20px 20px 20px", bottom: 10, right: 0, fontSize: 24, WebkitTextStrokeWidth: "1px", WebkitTextStrokeColor: altThemeColor, fontWeight: "bold", background: themeColor }}>
-        {screenWidth > 900 ? "Feedback" : <FeedbackIcon sx={{ width: "40px", height: "40px" }}></FeedbackIcon>}</Button>
+      <Button onClick={() => setGameSummaryOpen(true)} sx={{ position: "absolute", color: altThemeColor, border: "solid", minWidth: screenWidth > 900 ? "200px" : "50px", padding: screenWidth > 900 ? "20px 0px 20px 0px" : "20px 20px 20px 20px", bottom: 10, right: 0, fontSize: 24, WebkitTextStrokeWidth: "1px", WebkitTextStrokeColor: altThemeColor, fontWeight: "bold", background: themeColor }}>
+        {screenWidth > 900 ? "Summary" : <SummarizeIcon sx={{ width: "40px", height: "40px" }}></SummarizeIcon>}</Button>
     </Box>
-      </Link>
+
 
       <MatchHistory characterHistory={characterHistory} background={themeColor} history={history} open={matchHistoryOpen} handleClose={handleMatchHistoryClose} />
 
       <ConfirmationDialog open={confirmResetOpen} background={themeColor} handleClose={handleConfirmResetClose} onClick={confirmReset}></ConfirmationDialog>
+
+      <GameSummary background={themeColor} hist={history} handleClose={handleGameSummaryClose} open={gameSummaryOpen}/>
 
     </Box>
   );
