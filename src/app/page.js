@@ -535,7 +535,7 @@ export default function Home() {
       </Button>
 
       <Box sx={{
-        position: "absolute", minHeight: settingsOpen ? "60%" : "0px", height: settingsOpen ? "70%" : "0px", width: "420px", minWidth:
+        position: "absolute", minHeight: settingsOpen ? "60%" : "0px", height: settingsOpen ? "80%" : "0px", width: "420px", minWidth:
           "400px", background: themeColor, zIndex: 100, borderRadius: "15px", border: settingsOpen ? `3px solid ${altThemeColor}` : `0px solid ${altThemeColor}`, display: "flex", flexDirection: "column", overflow: "hidden", transition: "all 0.3s ease-out", right: 0,
       }}>
 
