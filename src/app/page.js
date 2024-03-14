@@ -405,7 +405,6 @@ export default function Home() {
     }
 
     setHistory((oldhist) => [...oldhist, hist])
-    console.log(history)
     setCharacterHistory((prev) => [...prev, chars])
     setTotal(newTotal)
     setHistAlt((oldAlt) => [...oldAlt, alt])

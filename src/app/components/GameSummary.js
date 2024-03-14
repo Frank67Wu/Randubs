@@ -75,7 +75,7 @@ export const GameSummary = ({ hist, background, open, handleClose}) => {
       return ""
     }
     if (streak.length == 1) {
-      return (`${streak[0][0]} ${streak[0][1] > 0 ? "won" : "lost"} ${Math.abs(streak[0][1])} games in a row`)
+      return (`${streak[0][0]} ${streak[0][1] > 0 ? "won" : "lost"} ${Math.abs(streak[0][1])} ${Math.abs(streak[0][1]) === 1 ? "game" : "games" } in a row`)
     }
     else {
       let names = ""
@@ -91,7 +91,7 @@ export const GameSummary = ({ hist, background, open, handleClose}) => {
         }
       }
 
-      names += `${streak[0][1] > 0 ? " won" : " lost"} ${Math.abs(streak[0][1])} games in a row`
+      names += `${streak[0][1] > 0 ? " won" : " lost"} ${Math.abs(streak[0][1])} ${Math.abs(streak[0][1]) === 1 ? "game" : "games" } in a row`
       return names
     }
   }
@@ -123,13 +123,13 @@ export const GameSummary = ({ hist, background, open, handleClose}) => {
             currentStreak[match[i]] += 1
           }
           else {
-            if (biggestWin[match[i]] === undefined || biggestWin[match[i]] < currentStreak[match[i]]) {
+            if (biggestWin[match[i]] === undefined || biggestWin[match[i]] <= currentStreak[match[i]]) {
               biggestWin[match[i]] = currentStreak[match[i]]
             }
             if (currentStreak[match[i]] > maxWin) {
               maxWin = currentStreak[match[i]]
             }
-            currentStreak[match[i]] = 0
+            currentStreak[match[i]] = -1
           }
         }
         else if (currentStreak[match[i]] < 0) {
@@ -137,13 +137,13 @@ export const GameSummary = ({ hist, background, open, handleClose}) => {
             currentStreak[match[i]] -= 1
           }
           else {
-            if (biggestLoss[match[i]] === undefined || biggestLoss[match[i]] > currentStreak[match[i]]) {
+            if (biggestLoss[match[i]] === undefined || biggestLoss[match[i]] >= currentStreak[match[i]]) {
               biggestLoss[match[i]] = currentStreak[match[i]]
             }
             if (currentStreak[match[i]] < maxLoss) {
               maxLoss = currentStreak[match[i]]
             }
-            currentStreak[match[i]] = 0
+            currentStreak[match[i]] = 1
           }
         }
       }
@@ -151,21 +151,22 @@ export const GameSummary = ({ hist, background, open, handleClose}) => {
 
     const names = Object.keys(currentStreak)
     for (const name of names) {
-      if (currentStreak[name] > 0) {
-        if (biggestWin[name] === undefined || currentStreak[name] > biggestWin[name]) {
-          biggestWin[name] = currentStreak[name]
+      console.log(biggestWin, biggestLoss, currentStreak)
+        if (biggestWin[name] === undefined || currentStreak[name] >= biggestWin[name]) {
+          if (currentStreak[name] > 0) {
+            biggestWin[name] = currentStreak[name]
+          }
           if (currentStreak[name] > maxWin) {
             maxWin = currentStreak[name]
           }
         }
-      }
-      else if (currentStreak[name] < 0) {
-        if (biggestLoss[name] === undefined || currentStreak[name] < biggestLoss[name]) {
-          biggestLoss[name] = currentStreak[name]
+        if (biggestLoss[name] === undefined || currentStreak[name] <= biggestLoss[name]) {
+          if (currentStreak[name] < 0) {
+            biggestLoss[name] = currentStreak[name]
+          }
           if (currentStreak[name] < maxLoss) {
             maxLoss = currentStreak[name]
           }
-        }
       }
     }
 
