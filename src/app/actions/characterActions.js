@@ -23,7 +23,12 @@ export async function updateScore(match) {
     charOne = handleAlt[charOne] || charOne
     charTwo = handleAlt[charTwo] || charTwo 
 
-    axios.patch("/api/duo", {characterOne : charOne, characterTwo : charTwo, win : match[4] == 0 ? 1 : 0, loss : match[4] == 0 ? 0 : 1})
+    let win =  match[4] == 0 ? 1 : 0
+    let loss = match[4] == 0 ? 0 : 1
+
+    axios.patch("/api/character", {"codeName" : charOne, win : win, loss : loss } )
+    axios.patch("/api/character", {"codeName" : charTwo, win : win, loss : loss } )
+    axios.patch("/api/duo", {characterOne : charOne, characterTwo : charTwo, win : win, loss : loss})
 
     let charThree = match[2] > match[3] ? match[2].slice(0, -3) : match[3].slice(0, -3)
     let charFour = match[2] > match[3] ? match[3].slice(0, -3) : match[2].slice(0, -3)
@@ -31,6 +36,11 @@ export async function updateScore(match) {
     charThree = handleAlt[charThree] || charThree
     charFour = handleAlt[charFour] || charFour 
 
-    axios.patch("/api/duo", {characterOne : charThree, characterTwo : charFour, win : match[4] == 1 ? 1 : 0, loss : match[4] == 1 ? 0 : 1})
+    win = match[4] == 0 ? 1 : 0
+    loss = match[4] == 0 ? 0 : 1 
+
+    axios.patch("/api/character", {"codeName" : charThree, win : win, loss : loss} )
+    axios.patch("/api/character", {"codeName" : charFour, win : win, loss : loss} )
+    axios.patch("/api/duo", {characterOne : charThree, characterTwo : charFour, win : win, loss : loss})
 
 }

@@ -69,7 +69,7 @@ export async function DELETE(request : NextRequest, response : NextResponse) {
 
 }
 
-export async function UPDATE(request : NextRequest, response : NextResponse) {
+export async function PATCH(request : NextRequest, response : NextResponse) {
 
     try {
 
