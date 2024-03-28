@@ -1,5 +1,9 @@
 //'use client'
 
+export default function tempUnused() {
+    return <div> Unused Page </div>
+}
+
 // import { Box, TextField, Typography, Button, Container, ToggleButton } from "@mui/material";
 // import { useState, useEffect, useLayoutEffect, useContext } from "react";
 // import { MatchHistory } from "../components/MatchHistory";
