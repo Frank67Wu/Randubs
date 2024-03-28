@@ -22,6 +22,8 @@ import { ColorToggle } from "./components/ColorToggle";
 import { io } from "socket.io-client";
 import { GameSummary } from "./components/GameSummary";
 import SummarizeIcon from '@mui/icons-material/Summarize';
+import { CharacterSelection } from "./components/CharacterSelection";
+import { updateScore } from "./actions/characterActions"
 
 
 export default function Home() {
@@ -53,6 +55,8 @@ export default function Home() {
   const [playerColors, setPlayerColors] = useState([colorOne[0], colorOne[0], colorTwo[0], colorTwo[0]])
   const [cycleTeams, setCycleTeams] = useState(false)
   const [gameSummaryOpen, setGameSummaryOpen] = useState(false)
+
+  const [timeSinceLastMatch, setTimeSinceLastMatch] = useState(Date.now())
 
   const [characterHistory, setCharacterHistory] = useState([])
   const [confirmResetOpen, setConfirmResetOpen] = useState(false)
@@ -392,9 +396,11 @@ export default function Home() {
 
     if (winner == colorOne[0]) {
       hist.push(0)
+      chars.push(0)
     }
     else {
       hist.push(1)
+      chars.push(1)
     }
 
     hist.push(matchAmount)
@@ -403,6 +409,12 @@ export default function Home() {
     for (let col of playerColors) {
       histCol.push(col)
     }
+
+    const currentTime = Date.now() 
+    if (currentTime - timeSinceLastMatch > 60000 && chars[0] !== "") {
+      updateScore(chars)
+    }
+    setTimeSinceLastMatch(currentTime)
 
     setHistory((oldhist) => [...oldhist, hist])
     setCharacterHistory((prev) => [...prev, chars])
@@ -472,7 +484,7 @@ export default function Home() {
   const generateRandomCharacter = () => {
     let index = 0
     if (!includeMiis) {
-      index = Math.floor(Math.random() * (smashCodeNames.length - 3)) + 3;
+      index = Math.floor(Math.random() * (smashCodeNames.length - 3));
     }
     else {
       index = Math.floor(Math.random() * smashCodeNames.length);
@@ -486,7 +498,7 @@ export default function Home() {
       name = smashCodeNames[index][secondIndex]
     }
 
-    if (index < 3) {
+    if (index > 78) {
       return name + "_00"
     }
 
@@ -675,6 +687,8 @@ export default function Home() {
       <ConfirmationDialog open={confirmResetOpen} background={themeColor} handleClose={handleConfirmResetClose} onClick={confirmReset}></ConfirmationDialog>
 
       <GameSummary background={themeColor} hist={history} handleClose={handleGameSummaryClose} open={gameSummaryOpen}/>
+
+
 
     </Box>
   );

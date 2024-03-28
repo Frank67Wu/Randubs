@@ -1,7 +1,6 @@
 import * as React from 'react';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
-import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Dialog from '@mui/material/Dialog';
@@ -15,13 +14,14 @@ export const MatchHistory = ({history, open, handleClose, background, characterH
   const backgroundColor = background == "black" ? "#343434" : "#FAF9F6"
   const color = background == "black" ? "white" : "black"
 
+  console.log(characterHistory, history)
+
   return (
     <Dialog fullWidth maxWidth="md" onClose={handleClose} open={open}>
       <DialogTitle sx={{textAlign : "center", background : backgroundColor, color : color, fontSize : 36, WebkitTextStrokeWidth : "1px" , WebkitTextStrokeColor : color, fontWeight : "bold"}}>Match History</DialogTitle>
       <List sx={{ pt: 0, background: backgroundColor, color : color}}>
         {history.map((match, index) => (
           <ListItem disableGutters key={index}>
-            <ListItemButton >
               <Box sx={{display: "flex", justifyContent : "space-evenly", width : "100%"}}>
               <Box sx={{display : "flex", minWidth : "300px", textAlign : "center"}}>
                 {characterHistory[index] && characterHistory[index][0] !== "" && <img style={{width : "50px", height : "50px"}} alt={""} src={`/Stock Icons/chara_2_${characterHistory[index][0]}.png`}/>}
@@ -43,8 +43,6 @@ export const MatchHistory = ({history, open, handleClose, background, characterH
               </Box>
               
               </Box>
-              
-            </ListItemButton>
           </ListItem>
         ))}
       </List>

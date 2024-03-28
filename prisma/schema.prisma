@@ -1,0 +1,37 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+
+model Character {
+  id Int @id @default (autoincrement())
+  name String?
+  codeName String @unique
+  altName String? @unique 
+  inDuoOne Duo[] @relation("characterOne")
+  inDuoTwo Duo[] @relation("characterTwo")
+  gamesWon Int @default(0)
+  gamesLost Int @default(0)
+}
+
+model Duo {
+  id String @id @default(uuid())
+  characterOne Character @relation(name: "characterOne", fields: [characterOneCodeName], references: [codeName])
+  characterOneCodeName String 
+  characterTwo Character @relation(name: "characterTwo", fields: [characterTwoCodeName], references: [codeName])
+  characterTwoCodeName String
+  gamesWon Int @default(0)
+  gamesLost Int @default(0)
+}

@@ -151,7 +151,6 @@ export const GameSummary = ({ hist, background, open, handleClose}) => {
 
     const names = Object.keys(currentStreak)
     for (const name of names) {
-      console.log(biggestWin, biggestLoss, currentStreak)
         if (biggestWin[name] === undefined || currentStreak[name] >= biggestWin[name]) {
           if (currentStreak[name] > 0) {
             biggestWin[name] = currentStreak[name]
@@ -194,7 +193,6 @@ export const GameSummary = ({ hist, background, open, handleClose}) => {
       <List sx={{ pt: 0, background: backgroundColor, color: color }}>
         {winRates && winRates.map((pair, index) => (
           <ListItem disableGutters key={index}>
-            <ListItemButton >
               <Box sx={{ display: "flex", justifyContent: "space-evenly", width: "100%", alignItems: "center" }}>
                 <Box sx={{ display: "flex", width: "300px", minWidth: "300px", textAlign: "center" }}>
                   <ListItemText primaryTypographyProps={{
@@ -221,8 +219,6 @@ export const GameSummary = ({ hist, background, open, handleClose}) => {
                 </Box>
 
               </Box>
-
-            </ListItemButton>
           </ListItem>
         ))}
       </List>
